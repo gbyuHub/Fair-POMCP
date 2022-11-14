@@ -1,5 +1,5 @@
-pomcp-main.o: main.cpp /usr/include/stdc-predef.h battleship.h \
- simulator.h history.h /usr/include/c++/7/vector \
+pomcp-main.o: main.cpp /usr/include/stdc-predef.h mcts.h simulator.h \
+ history.h /usr/include/c++/7/vector \
  /usr/include/c++/7/bits/stl_algobase.h \
  /usr/include/x86_64-linux-gnu/c++/7/bits/c++config.h \
  /usr/include/x86_64-linux-gnu/c++/7/bits/os_defines.h \
@@ -155,12 +155,9 @@ pomcp-main.o: main.cpp /usr/include/stdc-predef.h battleship.h \
  /usr/include/c++/7/bits/stl_heap.h /usr/include/c++/7/bits/stl_tempbuf.h \
  /usr/include/c++/7/bits/uniform_int_dist.h /usr/include/c++/7/limits \
  /usr/include/c++/7/iostream /usr/include/c++/7/istream \
- /usr/include/c++/7/bits/istream.tcc grid.h /usr/include/c++/7/list \
- /usr/include/c++/7/bits/stl_list.h \
- /usr/include/c++/7/bits/allocated_ptr.h \
- /usr/include/c++/7/ext/aligned_buffer.h /usr/include/c++/7/bits/list.tcc \
- mcts.h statistic.h network.h pocman.h rocksample.h tag.h experiment.h \
- /usr/include/c++/7/fstream /usr/include/c++/7/bits/codecvt.h \
+ /usr/include/c++/7/bits/istream.tcc statistic.h rocksample.h grid.h \
+ experiment.h /usr/include/c++/7/fstream \
+ /usr/include/c++/7/bits/codecvt.h \
  /usr/include/x86_64-linux-gnu/c++/7/bits/basic_file.h \
  /usr/include/x86_64-linux-gnu/c++/7/bits/c++io.h \
  /usr/include/c++/7/bits/fstream.tcc \
@@ -184,9 +181,10 @@ pomcp-main.o: main.cpp /usr/include/stdc-predef.h battleship.h \
  /usr/include/boost/config/detail/suffix.hpp \
  /usr/include/boost/version.hpp /usr/include/boost/config/auto_link.hpp \
  /usr/include/boost/program_options/errors.hpp /usr/include/c++/7/map \
- /usr/include/c++/7/bits/stl_tree.h /usr/include/c++/7/bits/stl_map.h \
- /usr/include/c++/7/tuple /usr/include/c++/7/array \
- /usr/include/c++/7/bits/uses_allocator.h \
+ /usr/include/c++/7/bits/stl_tree.h \
+ /usr/include/c++/7/ext/aligned_buffer.h \
+ /usr/include/c++/7/bits/stl_map.h /usr/include/c++/7/tuple \
+ /usr/include/c++/7/array /usr/include/c++/7/bits/uses_allocator.h \
  /usr/include/c++/7/bits/invoke.h /usr/include/c++/7/bits/stl_multimap.h \
  /usr/include/boost/program_options/value_semantic.hpp \
  /usr/include/boost/any.hpp /usr/include/boost/type_index.hpp \
@@ -324,6 +322,7 @@ pomcp-main.o: main.cpp /usr/include/stdc-predef.h battleship.h \
  /usr/include/c++/7/bits/unique_ptr.h \
  /usr/include/c++/7/bits/shared_ptr.h \
  /usr/include/c++/7/bits/shared_ptr_base.h \
+ /usr/include/c++/7/bits/allocated_ptr.h \
  /usr/include/c++/7/bits/shared_ptr_atomic.h \
  /usr/include/c++/7/bits/atomic_base.h \
  /usr/include/c++/7/bits/atomic_lockfree_defines.h \
@@ -907,7 +906,7 @@ pomcp-main.o: main.cpp /usr/include/stdc-predef.h battleship.h \
 
 /usr/include/stdc-predef.h:
 
-battleship.h:
+mcts.h:
 
 simulator.h:
 
@@ -1319,29 +1318,11 @@ memorypool.h:
 
 /usr/include/c++/7/bits/istream.tcc:
 
-grid.h:
-
-/usr/include/c++/7/list:
-
-/usr/include/c++/7/bits/stl_list.h:
-
-/usr/include/c++/7/bits/allocated_ptr.h:
-
-/usr/include/c++/7/ext/aligned_buffer.h:
-
-/usr/include/c++/7/bits/list.tcc:
-
-mcts.h:
-
 statistic.h:
-
-network.h:
-
-pocman.h:
 
 rocksample.h:
 
-tag.h:
+grid.h:
 
 experiment.h:
 
@@ -1406,6 +1387,8 @@ experiment.h:
 /usr/include/c++/7/map:
 
 /usr/include/c++/7/bits/stl_tree.h:
+
+/usr/include/c++/7/ext/aligned_buffer.h:
 
 /usr/include/c++/7/bits/stl_map.h:
 
@@ -1708,6 +1691,8 @@ experiment.h:
 /usr/include/c++/7/bits/shared_ptr.h:
 
 /usr/include/c++/7/bits/shared_ptr_base.h:
+
+/usr/include/c++/7/bits/allocated_ptr.h:
 
 /usr/include/c++/7/bits/shared_ptr_atomic.h:
 
