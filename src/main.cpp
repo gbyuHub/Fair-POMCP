@@ -10,15 +10,15 @@
 using namespace std;
 using namespace boost::program_options;
 
-void UnitTests()
-{
-    cout << "Testing UTILS" << endl;
-    UTILS::UnitTest();
-    cout << "Testing COORD" << endl;
-    COORD::UnitTest();
-    cout << "Testing MCTS" << endl;
-    MCTS::UnitTest();
-}
+// void UnitTests()
+// {
+//     cout << "Testing UTILS" << endl;
+//     UTILS::UnitTest();
+//     cout << "Testing COORD" << endl;
+//     COORD::UnitTest();
+//     cout << "Testing MCTS" << endl;
+//     MCTS::UnitTest();
+// }
 
 void disableBufferedIO(void)
 {
@@ -45,6 +45,7 @@ int main(int argc, char* argv[])
         ("test", "run unit tests")
         ("problem", value<string>(&problem), "problem to run")
         ("outputfile", value<string>(&outputfile)->default_value("output.txt"), "summary output file")
+		("strategy", value<string>(&searchParams.Strategy)->default_value("GGF"), "action selection strategy")
         ("policy", value<string>(&policy), "policy file (explicit POMDPs only)")
         ("size", value<int>(&size), "size of problem (problem specific)")
         ("number", value<int>(&number), "number of elements in problem (problem specific)")
@@ -87,12 +88,12 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-    if (vm.count("test"))
-    {
-        cout << "Running unit tests" << endl;
-        UnitTests();
-        return 0;
-    }
+    // if (vm.count("test"))
+    // {
+    //     cout << "Running unit tests" << endl;
+    //     UnitTests();
+    //     return 0;
+    // }
 
     SIMULATOR* real = 0;
     SIMULATOR* simulator = 0;
@@ -124,8 +125,8 @@ int main(int argc, char* argv[])
     // }
     if (problem == "rocksample")
     {
-        real = new ROCKSAMPLE(size, number);
-        simulator = new ROCKSAMPLE(size, number);
+        real = new ROCKSAMPLE(size, number, 2);
+        simulator = new ROCKSAMPLE(size, number, 2);
     }
     else 
     {
