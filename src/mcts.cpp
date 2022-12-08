@@ -127,7 +127,6 @@ void MCTS::RolloutSearch()
 	assert(BeliefState().GetNumSamples() > 0);
 	Simulator.GenerateLegal(*BeliefState().GetSample(0), GetHistory(), legal, GetStatus());
 	random_shuffle(legal.begin(), legal.end());
-
 	for (int i = 0; i < Params.NumSimulations; i++)
 	{
 		int action = legal[i % legal.size()];
@@ -177,7 +176,8 @@ void MCTS::UCTSearch(std::vector<double>& realCumulativeRew)
 
 		TreeDepth = 0;
 		PeakTreeDepth = 0;
-		std::vector<double> totalReward = SimulateV(*state, Root, realCumulativeRew);
+        vector<double> tempCumulativeRew = realCumulativeRew;
+		std::vector<double> totalReward = SimulateV(*state, Root, tempCumulativeRew);
 		StatTotalReward.Add(totalReward);	
 		StatTreeDepth.Add(PeakTreeDepth);
 
