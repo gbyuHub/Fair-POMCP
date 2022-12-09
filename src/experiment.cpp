@@ -12,17 +12,17 @@ std::ostream& operator << (std::ostream& os, const std::vector<T>& v)
     {
         os << *ii << (ii != v.end() - 1 ? " " : "");
     }
-    os << "]" << endl;;
+    os << "]";
     return os;
 }
 
 EXPERIMENT::PARAMS::PARAMS()
-	: NumRuns(100),
+	: NumRuns(50),
 	NumSteps(100000),
 	SimSteps(1000),
 	TimeOut(12*3600),
 	MinDoubles(1),
-	MaxDoubles(14),
+	MaxDoubles(20),
 	TransformDoubles(-4),
 	TransformAttempts(1000),
 	Accuracy(0.01),
@@ -87,21 +87,22 @@ void EXPERIMENT::Run()
 		vector<double> reward;
 		// SearchParams.MaxDepth = ExpParams.NumSteps - t;
         int action = mcts->SelectAction(cumulativeReward);
-		cout << "real action = " << action << endl;
+        // cout << "action: " << action << endl;
 		terminal = Real.Step(*state, action, observation, reward);
-		t++;
 		if (accumulate(reward.begin(), reward.end(), 0) > 0) {
 			collectRockNum++;
 		}
-		cout << "real observation = " << observation << endl;
-		cout << "real immediate reward: " << reward;
-
 		Results.Reward.Add(reward);
 		for (int i =0; i < 2; i++){
 			undiscountedReturn[i] += reward[i];
 			discountedReturn[i] += reward[i] * discount;
 			cumulativeReward[i] += reward[i];
-		}
+        }
+        // cout << "immediate reward: " << reward << endl;
+        // cout << "undiscounted return: " << undiscountedReturn << endl;
+        // cout << "discounted return: " << discountedReturn << endl;
+        // cout << "cumulative reward: " << cumulativeReward << endl;
+        // cout << "----------------------------------------" << endl;
 		// undiscountedReturn += reward;
 		// discountedReturn += reward * discount;
 		discount *= Real.GetDiscount();
@@ -119,6 +120,7 @@ void EXPERIMENT::Run()
 			break;
 		}
 		outOfParticles = !mcts->Update(action, observation, reward);
+        if (outOfParticles) cout << "No particles!" << endl;
 		if (outOfParticles)
 			break;
 

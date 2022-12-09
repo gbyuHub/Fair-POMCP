@@ -23,7 +23,7 @@
 namespace UTILS
 {
 
-	inline double GGF(std::vector<double>& utility)
+	inline double GGF(std::vector<double> utility)
 	{
 		assert(utility.size() > 0);
 		std::vector<double> w = {1.0, 0.5};
@@ -52,6 +52,9 @@ namespace UTILS
 		double sum = std::accumulate(arr.begin(), arr.end(), 0.0);
 		double variance = 0.0, mean = 0.0, stdDeviation = 0.0;
 		mean = sum / arr.size();
+        if (mean == 0) {
+            return 0.0;
+        }
 		for (auto& elem: arr) {
 			variance += pow(elem - mean, 2);
 		}

@@ -137,6 +137,9 @@ STATE* ROCKSAMPLE::CreateStartState() const
 	std::random_device device;
 	auto rng = std::default_random_engine {device()};
 	std::shuffle(std::begin(idx), std::end(idx), rng);
+    // assume full observable
+    // std::vector<int> idx{4, 5, 6, 7};
+
 	for (int i = 0; i < NumRocks / 2; i++) {
 		int id = idx[i];
 		rockstate->Rocks[id].Type = 1;
