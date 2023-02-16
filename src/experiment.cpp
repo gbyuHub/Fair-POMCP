@@ -17,12 +17,12 @@ std::ostream& operator << (std::ostream& os, const std::vector<T>& v)
 }
 
 EXPERIMENT::PARAMS::PARAMS()
-	: NumRuns(50),
+	: NumRuns(1),
 	NumSteps(100000),
 	SimSteps(1000),
 	TimeOut(12*3600),
 	MinDoubles(1),
-	MaxDoubles(20),
+	MaxDoubles(16),
 	TransformDoubles(-4),
 	TransformAttempts(1000),
 	Accuracy(0.01),
@@ -80,8 +80,8 @@ void EXPERIMENT::Run()
 	if (SearchParams.Verbose >= 1)
 		Real.DisplayState(*state, cout);
 
-	for (t = 0; t < ExpParams.NumSteps; t++)
-	// for (collectRockNum = 0; collectRockNum < 4; )
+	// for (t = 0; t < ExpParams.NumSteps; t++)
+	for (collectRockNum = 0; collectRockNum < 4; )
 	{
 		int observation;
 		vector<double> reward;
@@ -89,8 +89,10 @@ void EXPERIMENT::Run()
         int action = mcts->SelectAction(cumulativeReward);
         // cout << "action: " << action << endl;
 		terminal = Real.Step(*state, action, observation, reward);
+		t++;
 		if (accumulate(reward.begin(), reward.end(), 0) > 0) {
 			collectRockNum++;
+			// cout << "collect " << collectRockNum << " rocks." << endl;
 		}
 		Results.Reward.Add(reward);
 		for (int i =0; i < 2; i++){
@@ -210,7 +212,7 @@ void EXPERIMENT::MultiRun()
 void EXPERIMENT::DiscountedReturn()
 {
 	cout << "Main runs" << endl;
-	OutputFile << "Simulations\tRuns\tUndiscounted return\tUndiscounted error\tDiscounted return\tDiscounted error\tTime\tUndiscounted CV\tUndiscounted CV error\tDiscounted CV\tDiscounted CV error\tTimesteps\tGGF score\n";
+	OutputFile << "Simulations\tRuns\tUndiscounted return\tUndiscounted error\tDiscounted return\tDiscounted error\tTime\tUndiscounted CV\tUndiscounted CV error\tDiscounted CV\tDiscounted CV error\tTimesteps\tTimesteps error\tGGF score\tGGF score error\n";
 
 	// 89
 	// ExpParams.SimSteps = Simulator.GetHorizon(ExpParams.Accuracy, ExpParams.UndiscountedHorizon);
@@ -252,9 +254,9 @@ void EXPERIMENT::DiscountedReturn()
 			<< Results.UndiscountedReturn.GetStdErr() << "\t"
 			<< Results.DiscountedReturn.GetMean() << "\t"
 			<< Results.DiscountedReturn.GetStdErr() << "\t"
-			<< Results.Time.GetMean() << endl << "\t"
+			<< Results.Time.GetMean() << "\t"
 			<< Results.UndiscountedRewCV.GetMean() << "\t"
-			<< Results.UndiscountedRewCV.GetStdErr() << endl << "\t"
+			<< Results.UndiscountedRewCV.GetStdErr() << "\t"
 			<< Results.DiscountedRewCV.GetMean() << "\t"
 			<< Results.DiscountedRewCV.GetStdErr() << "\t"
 			<< Results.Timestep.GetMean() << "\t"

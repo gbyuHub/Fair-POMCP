@@ -42,7 +42,7 @@ public:
 	virtual int SelectAction(const std::vector<double>& cumulativeReward);
 	bool Update(int action, int observation, std::vector<double>& reward);
 
-	void UCTSearch(std::vector<double>& cumulativeReward);
+	void UCTSearch(const std::vector<double>& cumulativeReward);
 	void RolloutSearch();
 
 	std::vector<double> Rollout(STATE& state);
@@ -58,10 +58,10 @@ public:
 	// static void UnitTest();
 	static void InitFastUCB(double exploration);
 
-	int GreedyUCB(VNODE* vnode, bool ucb, std::vector<double>& cumulativeReward) const;
+	int GreedyUCB(VNODE* vnode, bool ucb, const std::vector<double> cumulativeReward) const;
 	int SelectRandom() const;
-	std::vector<double> SimulateV(STATE& state, VNODE* vnode, std::vector<double>& cumulativeReward);
-	std::vector<double> SimulateQ(STATE& state, QNODE& qnode, int action, std::vector<double>& cumulativeReward);
+	std::vector<double> SimulateV(STATE& state, VNODE* vnode, std::vector<double> cumulativeReward, bool foundOneRock);
+	std::vector<double> SimulateQ(STATE& state, QNODE& qnode, int action, std::vector<double> cumulativeReward);
 	void AddRave(VNODE* vnode, double totalReward);
 	VNODE* ExpandNode(const STATE* state);
 	void AddSample(VNODE* node, const STATE& state);

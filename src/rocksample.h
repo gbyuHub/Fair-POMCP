@@ -69,6 +69,7 @@ protected:
 	};
 
 	void InitGeneral();
+	void Init_3_3();
 	void Init_7_8();
 	void Init_11_11();
 	int GetObservation(const ROCKSAMPLE_STATE& rockstate, int rock) const;
