@@ -24,6 +24,9 @@ struct RESULTS
 	VECTORSTATISTIC Reward = VECTORSTATISTIC(2);
 	VECTORSTATISTIC DiscountedReturn = VECTORSTATISTIC(2);
 	VECTORSTATISTIC UndiscountedReturn = VECTORSTATISTIC(2);
+    STATISTIC CollectedType1Rocks;
+    STATISTIC CollectedType2Rocks;
+    STATISTIC NumCheckAction;
     STATISTIC MaxNumberOfBandits;
 };
 

@@ -15,7 +15,7 @@ std::ostream& operator << (std::ostream& os, const std::vector<T>& v)
     {
         os << *ii << (ii != v.end()-1 ? " " : "");
     }
-    os << "]" << endl;;
+    os << "]";
     return os;
 }
 
@@ -73,14 +73,12 @@ bool MCTS::Update(int action, int observation, vector<double>& reward)
 	VNODE* vnode = qnode.Child(observation);
 	if (vnode)
 	{
-		// cout << "Matched " << vnode->Beliefs().GetNumSamples() << " states" << endl;
 		if (Params.Verbose >= 1)
 			cout << "Matched " << vnode->Beliefs().GetNumSamples() << " states" << endl;
 		beliefs.Copy(vnode->Beliefs(), Simulator);
 	}
 	else
 	{
-		// cout << "No matching node found" << endl;
 		if (Params.Verbose >= 1)
 			cout << "No matching node found" << endl;
 	}
@@ -93,7 +91,7 @@ bool MCTS::Update(int action, int observation, vector<double>& reward)
 	if (beliefs.Empty() && (!vnode || vnode->Beliefs().Empty()))
 		return false;
 
-	if (Params.Verbose >= 1)
+	if (Params.Verbose >= 2)
 		Simulator.DisplayBeliefs(beliefs, cout);
 
 	// Find a state to initialise prior (only requires fully observed state)
@@ -111,13 +109,13 @@ bool MCTS::Update(int action, int observation, vector<double>& reward)
 	return true;
 }
 
-int MCTS::SelectAction(const std::vector<double>& cumulativeReward)
+int MCTS::SelectAction(const std::vector<double>& cumulative_past_rew)
 {
 	if (Params.DisableTree)
 		RolloutSearch();
 	else
-		UCTSearch(cumulativeReward);
-	return GreedyUCB(Root, false, cumulativeReward);
+		UCTSearch(cumulative_past_rew);
+	return GreedyUCB(Root, false);
 }
 
 void MCTS::RolloutSearch()
@@ -159,7 +157,7 @@ void MCTS::RolloutSearch()
 	}
 }
 
-void MCTS::UCTSearch(const std::vector<double>& realCumulativeRew)
+void MCTS::UCTSearch(std::vector<double> cumulative_past_rew)
 {
 	ClearStatistics();
 	int historyDepth = History.Size();
@@ -169,17 +167,15 @@ void MCTS::UCTSearch(const std::vector<double>& realCumulativeRew)
 		STATE* state = Root->Beliefs().CreateSample(Simulator);
 		Simulator.Validate(*state);
 		Status.Phase = SIMULATOR::STATUS::TREE;
-		// cout << "Starting simulation #" << n << endl; 
-		if (Params.Verbose >= 2)
+		if (Params.Verbose >= 1)
 		{
-			cout << "Starting simulation" << endl;
+			cout << "Starting simulation " << n << endl;
 			Simulator.DisplayState(*state, cout);
 		}
 
 		TreeDepth = 0;
 		PeakTreeDepth = 0;
-        vector<double> tempCumulativeRew = realCumulativeRew;
-		std::vector<double> totalReward = SimulateV(*state, Root, tempCumulativeRew, false);
+		std::vector<double> totalReward = SimulateV(*state, Root, cumulative_past_rew, false);
 		StatTotalReward.Add(totalReward);	
 		StatTreeDepth.Add(PeakTreeDepth);
 		// cout << "Total reward = " << "[" << totalReward[0] << ", " <<totalReward[1] << "]" << endl;
@@ -196,57 +192,49 @@ void MCTS::UCTSearch(const std::vector<double>& realCumulativeRew)
 	DisplayStatistics(cout);
 }
 
-std::vector<double> MCTS::SimulateV(STATE& state, VNODE* vnode, std::vector<double> realCumulativeRew, bool foundOneRock)
+std::vector<double> MCTS::SimulateV(STATE& state, VNODE* vnode, std::vector<double> cumulative_past_rew, bool stop_search)
 {
 	PeakTreeDepth = TreeDepth;
 	if (TreeDepth >= Params.MaxDepth) // search horizon reached
 	{
-		cout << "search horizon reached!" << endl;
 		return {0.0, 0.0};
 	}
 	if (TreeDepth == 1)
 		AddSample(vnode, state);
-	if (foundOneRock) {
+	if (stop_search)
 		return {0.0, 0.0};
-	}
 
-	int action = GreedyUCB(vnode, true, realCumulativeRew);
-	// cout << "[TREE SEARCH]: select action " << action << endl;
+	int action = GreedyUCB(vnode, true);
+	if (Params.Verbose >= 1) cout << "[TREE SEARCH]: select action " << action << endl;
 
 	QNODE& qnode = vnode->Child(action);
 	// double totalReward = SimulateQ(state, qnode, action);
-	vector<double> totalReward = SimulateQ(state, qnode, action, realCumulativeRew);
+	vector<double> totalReward = SimulateQ(state, qnode, action, cumulative_past_rew);
 	vnode->Value.Add(totalReward);
 	// AddRave(vnode, totalReward);
 	return totalReward;
 }
 
-std::vector<double> MCTS::SimulateQ(STATE& state, QNODE& qnode, int action, std::vector<double> realCumulativeRew)
+std::vector<double> MCTS::SimulateQ(STATE& state, QNODE& qnode, int action, std::vector<double> cumulative_past_rew)
 {
 	int observation;
 	// double immediateReward, delayedReward = 0;
 	vector<double> immediateReward(2, 0.0), delayedReward(2, 0.0);
+	vector<double> cumulative_past_rew_old = cumulative_past_rew;
 
 	if (Simulator.HasAlpha())
 		Simulator.UpdateAlpha(qnode, state);
 	bool terminal = Simulator.Step(state, action, observation, immediateReward);
-	for (int i = 0; i < 2; i++) {
-		realCumulativeRew[i] += immediateReward[i];
+	bool stop_search = (accumulate(immediateReward.begin(), immediateReward.end(), 0.0) > 0);
+	if (Params.Verbose >= 1) {
+		if (stop_search)
+			cout << "[TREE] Sample a rock with reward " << immediateReward << endl;
+	}
+	for (int i = 0; i < cumulative_past_rew.size(); i++) {
+		cumulative_past_rew[i] += Simulator.GetDiscount() * immediateReward[i];
 	}
 	assert(observation >= 0 && observation < Simulator.GetNumObservations());
 	History.Add(action, observation);
-
-    // bool foundOneRock = (accumulate(immediateReward.begin(), immediateReward.end(), 0.0) > 0);
-    // // if sample a rock, then return
-    // if (foundOneRock) {
-    //     // cout << "[TREE] find a rock with reward " << immediateReward;
-    //     std::vector<double> totalReward(2, 0.0);
-    //     for (int i = 0; i < 2; i++){
-    //         totalReward[i] = immediateReward[i] + Simulator.GetDiscount() * delayedReward[i];
-    //     }
-    //     qnode.Value.Add(totalReward);
-    //     return totalReward;
-    // }
 
 	if (Params.Verbose >= 3)
 	{
@@ -262,24 +250,11 @@ std::vector<double> MCTS::SimulateQ(STATE& state, QNODE& qnode, int action, std:
 		vnode = ExpandNode(&state);
 	}
 
-    bool foundOneRock = (accumulate(immediateReward.begin(), immediateReward.end(), 0.0) > 0);
-	// if (foundOneRock) cout << "immediate reward: " << immediateReward << endl;
-    // if sample a rock, then return
-    // if (foundOneRock) {
-    //     // cout << "[TREE] find a rock with reward " << immediateReward;
-    //     std::vector<double> totalReward(2, 0.0);
-    //     for (int i = 0; i < 2; i++){
-    //         totalReward[i] = immediateReward[i] + Simulator.GetDiscount() * delayedReward[i];
-    //     }
-    //     qnode.Value.Add(totalReward);
-    //     return totalReward;
-    // }
-
 	if (!terminal)
 	{
 		TreeDepth++;
 		if (vnode) {
-			delayedReward = SimulateV(state, vnode, realCumulativeRew, foundOneRock);
+			delayedReward = SimulateV(state, vnode, cumulative_past_rew, stop_search);
 		}
 		else {
 			delayedReward = Rollout(state);
@@ -293,6 +268,11 @@ std::vector<double> MCTS::SimulateQ(STATE& state, QNODE& qnode, int action, std:
 		totalReward[i] = immediateReward[i] + Simulator.GetDiscount() * delayedReward[i];
 	}
 	// qnode.Value.AddCumulatedReward(cumulatedReward);
+	if (Params.ConsiderPast) {
+		for (int i = 0; i < 2; i++) {
+			totalReward[i] = cumulative_past_rew_old[i] + Simulator.GetDiscount() * totalReward[i];
+		}
+	}
 	qnode.Value.Add(totalReward);
 	return totalReward;
 }
@@ -337,7 +317,7 @@ void MCTS::AddSample(VNODE* node, const STATE& state)
 	}
 }
 
-int MCTS::GreedyUCB(VNODE* vnode, bool ucb, const std::vector<double> cumulativeReward) const
+int MCTS::GreedyUCB(VNODE* vnode, bool ucb) const
 {
 	static vector<int> besta;
 	besta.clear();
@@ -345,10 +325,7 @@ int MCTS::GreedyUCB(VNODE* vnode, bool ucb, const std::vector<double> cumulative
 	int N = vnode->Value.GetCount();
 	double logN = log(N + 1);
 	bool hasalpha = Simulator.HasAlpha();
-
-	// if (ucb) cout << "--------------ucb---------------" << endl;
-	// else cout << "***************no-ucb*************" << endl;
-
+	if (Params.Verbose >= 1) cout << (ucb ? "----- PLANING -----" : "----- EXECUTION -----") << endl;
 
 	for (int action = 0; action < Simulator.GetNumActions(); action++)
 	{
@@ -360,15 +337,9 @@ int MCTS::GreedyUCB(VNODE* vnode, bool ucb, const std::vector<double> cumulative
 		QNODE& qnode = vnode->Child(action);
 		q = qnode.Value.GetValue();
 		n = qnode.Value.GetCount();
-
-        // cout << "action " << action << ", visit count = " << n << ", Q value: " << q << endl;
-
-		if (Params.ConsiderPast) {
-            // cout << "cumulative reward: " << cumulativeReward << endl;
-			for (int i = 0; i < 2; i++) {
-				q[i] += cumulativeReward[i];
-			}
-		}
+        if (Params.Verbose >= 1) {
+            cout << "Action = " << action << ", q = " << q << ", n = " << n << ", UCB term = " << FastUCB(N, n, logN) << endl;
+        }
 
 		if (Params.Strategy == "GGF") {
 			a = GGF(q); // GGF criteria
@@ -414,17 +385,12 @@ std::vector<double> MCTS::Rollout(STATE& state)
 		int action = Simulator.SelectRandom(state, History, Status);
 		// cout << "[ROLLOUT]: select action " << action << endl;
 		terminal = Simulator.Step(state, action, observation, reward);
+		bool stop_search = (accumulate(reward.begin(), reward.end(), 0.0) > 0);
+		if (Params.Verbose >= 1) {
+			if (stop_search)
+				cout << "[ROLLOUT] Sample a rock with reward " << reward << endl;
+		}
 		History.Add(action, observation);
-
-        bool foundOneRock = (accumulate(reward.begin(), reward.end(), 0.0) > 0);
-		// if (foundOneRock) cout << "immediate reward: " << reward << endl;
-        // if sample a rock, then return
-        if (foundOneRock) {
-            for (int i = 0; i < 2; i++){
-                totalReward[i] += reward[i];
-            }
-            break;
-        }
 
 		if (Params.Verbose >= 4)
 		{
@@ -439,6 +405,8 @@ std::vector<double> MCTS::Rollout(STATE& state)
 		for (int i = 0; i < 2; i++){
 			totalReward[i] += reward[i] * discount;
 		}
+		if (stop_search) 
+			break;
 		discount *= Simulator.GetDiscount();
 	}
 	StatRolloutDepth.Add(numSteps);

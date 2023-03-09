@@ -3,6 +3,7 @@
 // #include "network.h"
 // #include "pocman.h"
 #include "rocksample.h"
+#include "mlu.h"
 // #include "tag.h"
 #include "experiment.h"
 #include <boost/program_options.hpp>
@@ -55,6 +56,7 @@ int main(int argc, char* argv[])
         ("runs", value<int>(&expParams.NumRuns), "number of runs")
         ("accuracy", value<double>(&expParams.Accuracy), "accuracy level used to determine horizon")
         ("horizon", value<int>(&expParams.UndiscountedHorizon), "horizon to use when not discounting")
+        ("maxdepth", value<int>(&searchParams.MaxDepth), "Max depth of planning tree")
         ("num steps", value<int>(&expParams.NumSteps), "number of steps to run when using average reward")
         ("verbose", value<int>(&searchParams.Verbose), "verbosity level")
         ("autoexploration", value<bool>(&expParams.AutoExploration), "Automatically assign UCB exploration constant")
@@ -127,6 +129,10 @@ int main(int argc, char* argv[])
     {
         real = new ROCKSAMPLE(size, number, 2);
         simulator = new ROCKSAMPLE(size, number, 2);
+    }
+    else if (problem == "mlu") {
+        real = new MLU(5);
+        simulator = new MLU(5);
     }
     else 
     {

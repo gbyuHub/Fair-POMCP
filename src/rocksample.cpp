@@ -149,6 +149,7 @@ STATE* ROCKSAMPLE::CreateStartState() const
 		ROCKSAMPLE_STATE::ENTRY entry;
 		entry.Collected = false;
 		entry.Type = 0;
+		// entry.Type = Bernoulli(0.5) ? 0 : 1;
 		entry.Count = 0;
 		entry.Measured = 0;
 		entry.ProbValuable = 0.5;

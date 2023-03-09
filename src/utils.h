@@ -25,25 +25,30 @@ namespace UTILS
 
 	inline double GGF(std::vector<double> utility)
 	{
-		assert(utility.size() > 0);
-		std::vector<double> w = {1.0, 0.5};
-		std::sort(utility.begin(), utility.end());
-		double ans = 0.0;
-		for (int i = 0; i < utility.size(); i++){
-			ans += w[i] * utility[i];
+		int n = utility.size();
+		assert(n > 0);
+		std::vector<double> w(n);
+		for (int i = 0; i < n; i++) {
+			w[i] = 1.0 / pow(2, i);
 		}
-		return ans;
+		std::sort(utility.begin(), utility.end());
+		double score = 0.0;
+		for (int i = 0; i < n; i++){
+			score += w[i] * utility[i];
+		}
+		return score;
 	}
 
 	inline double WS(const std::vector<double> utility)
 	{
-		assert(utility.size() > 0);
-		std::vector<double> w = {0.5, 0.5};
-		double ans = 0.0;
-		for (int i = 0; i < utility.size(); i++){
-			ans += w[i] * utility[i];
+		int n = utility.size();
+		assert(n > 0);
+		std::vector<double> w(n, 1.0/n);
+		double score = 0.0;
+		for (int i = 0; i < n; i++){
+			score += w[i] * utility[i];
 		}
-		return ans;
+		return score;
 	}
 
 	inline double CV(const std::vector<double> arr)

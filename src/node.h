@@ -32,11 +32,7 @@ public:
 		// Total = value * count;
 		// SquaredTotal = value*value*count;
 		Total.resize(2);
-		realCumulatedReward.resize(2);
-		simCumulatedReward.resize(2);
 		for (int i = 0; i < 2; i++){
-			realCumulatedReward[i] = 0.0;
-			simCumulatedReward[i] = 0.0;
 			Total[i] = value * count;
 		}
 	}
@@ -86,48 +82,10 @@ public:
 	{
 		return SquaredTotal;
 	}
-
-	void AddRealCumulatedReward(const std::vector<double>& reward)
-	{
-		for (int i = 0; i < 2; i++){
-			realCumulatedReward[i] += reward[i];
-		}
-	}
-
-	void AddSimCumulatedReward(const std::vector<double>& reward)
-	{
-		for (int i = 0; i < 2; i++){
-			simCumulatedReward[i] += reward[i];
-		}
-	}
-
-	std::vector<double> GetRealCumulatedReward() const
-	{
-		return realCumulatedReward;
-	}
-
-	std::vector<double> GetSimCumulatedReward() const
-	{
-		return simCumulatedReward;
-	}
-
-	void clearSimCumulatedReward() 
-	{
-		simCumulatedReward = {0.0, 0.0};
-	} 
-
-	void clearRealCumulatedReward() 
-	{
-		realCumulatedReward = {0.0, 0.0};
-	} 
-
 private:
-
 	COUNT Count;
 	std::vector<double> Total;
 	double SquaredTotal;
-	std::vector<double> realCumulatedReward; // cumulated reward during simulation in the simulator
-	std::vector<double> simCumulatedReward; // cumulated reward obtained in the real environment
 };
 
 //-----------------------------------------------------------------------------

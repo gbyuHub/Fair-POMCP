@@ -57,14 +57,8 @@ void EXPERIMENT::Run()
 
 	MCTS* mcts = NULL;
 	// use MCTS anyway
-	if(ExpParams.usePOSTS)
-	{
-		mcts = new MCTS(Simulator, SearchParams);
-	}
-	else
-	{
-		mcts = new MCTS(Simulator, SearchParams);
-	}
+	mcts = new MCTS(Simulator, SearchParams);
+
 	// double undiscountedReturn = 0.0;
 	// double discountedReturn = 0.0;
 	std::vector<double> undiscountedReturn(2, 0.0);
@@ -74,40 +68,42 @@ void EXPERIMENT::Run()
 	bool terminal = false;
 	bool outOfParticles = false;
 	int t = 0;
-	int collectRockNum = 0;
+    // variables only for rocksample problem
+    int collected_type1_rocks_num = 0;
+    int collected_type2_rocks_num = 0;
+    int num_check_action = 0;
+	int collected_rock_num = 0;
 
 	STATE* state = Real.CreateStartState();
 	if (SearchParams.Verbose >= 1)
 		Real.DisplayState(*state, cout);
 
 	// for (t = 0; t < ExpParams.NumSteps; t++)
-	for (collectRockNum = 0; collectRockNum < 4; )
+	for (collected_rock_num = 0; collected_rock_num < 2; )
 	{
 		int observation;
 		vector<double> reward;
 		// SearchParams.MaxDepth = ExpParams.NumSteps - t;
         int action = mcts->SelectAction(cumulativeReward);
-        // cout << "action: " << action << endl;
+		if (action > 4) num_check_action++; 
 		terminal = Real.Step(*state, action, observation, reward);
 		t++;
-		if (accumulate(reward.begin(), reward.end(), 0) > 0) {
-			collectRockNum++;
-			// cout << "collect " << collectRockNum << " rocks." << endl;
+
+		if (!terminal && accumulate(reward.begin(), reward.end(), 0) > 0) 
+		{
+			collected_rock_num++;
+			if (reward[0] < reward[1]) collected_type1_rocks_num++;
+			else collected_type2_rocks_num++;
 		}
+
 		Results.Reward.Add(reward);
 		for (int i =0; i < 2; i++){
 			undiscountedReturn[i] += reward[i];
 			discountedReturn[i] += reward[i] * discount;
 			cumulativeReward[i] += reward[i];
         }
-        // cout << "immediate reward: " << reward << endl;
-        // cout << "undiscounted return: " << undiscountedReturn << endl;
-        // cout << "discounted return: " << discountedReturn << endl;
-        // cout << "cumulative reward: " << cumulativeReward << endl;
-        // cout << "----------------------------------------" << endl;
-		// undiscountedReturn += reward;
-		// discountedReturn += reward * discount;
 		discount *= Real.GetDiscount();
+
 		if (SearchParams.Verbose >= 1)
 		{
 			Real.DisplayAction(action, cout);
@@ -128,7 +124,7 @@ void EXPERIMENT::Run()
 
 		if (timer.elapsed() > ExpParams.TimeOut)
 		{
-			cout << "Timed out after " << collectRockNum << " rocks collected in "
+			cout << "Timed out after " << collected_rock_num << " rocks collected in "
 				<< Results.Time.GetTotal() << "seconds" << endl;
 			break;
 		}
@@ -147,16 +143,23 @@ void EXPERIMENT::Run()
 			// SelectRandom must only use fully observable state
 			// to avoid "cheating"
 			int action = Simulator.SelectRandom(*state, history, mcts->GetStatus());
+			if (action > 4) num_check_action++; 
 			terminal = Real.Step(*state, action, observation, reward);
+
+			if (!terminal && accumulate(reward.begin(), reward.end(), 0) > 0) 
+			{
+				collected_rock_num++;
+				if (reward[0] < reward[1]) collected_type1_rocks_num++;
+				else collected_type2_rocks_num++;
+			}
 
 			Results.Reward.Add(reward);
 			for (int i =0; i < 2; i++){
 				undiscountedReturn[i] += reward[i];
 				discountedReturn[i] += reward[i] * discount;
 			}
-			// undiscountedReturn += reward;
-			// discountedReturn += reward * discount;
 			discount *= Real.GetDiscount();
+
 			if (SearchParams.Verbose >= 1)
 			{
 				Real.DisplayAction(action, cout);
@@ -182,6 +185,9 @@ void EXPERIMENT::Run()
 	Results.DiscountedRewCV.Add(CV(discountedReturn));
 	Results.UndiscountedReturn.Add(undiscountedReturn);
 	Results.DiscountedReturn.Add(discountedReturn);
+    Results.CollectedType1Rocks.Add(collected_type1_rocks_num);
+    Results.CollectedType2Rocks.Add(collected_type2_rocks_num);
+    Results.NumCheckAction.Add(num_check_action);
 	cout << "num steps = " << t << endl;
 	cout << "GGF score = " << GGF(undiscountedReturn) << endl;
 	cout << "CV = " << CV(undiscountedReturn) << endl;
@@ -189,6 +195,10 @@ void EXPERIMENT::Run()
 		<< ", average = " << Results.DiscountedReturn.GetMean() << endl;
 	cout << "Undiscounted return = " << undiscountedReturn
 		<< ", average = " << Results.UndiscountedReturn.GetMean() << endl;
+    cout << "Number of type1 rocks collected = " << collected_type1_rocks_num << endl;
+    cout << "Number of type2 rocks collected = " << collected_type2_rocks_num << endl;
+    cout << "Number of check actions = " << num_check_action << endl;
+    cout << "Number of steps = " << t << endl;
 	delete mcts;
 }
 
@@ -214,11 +224,9 @@ void EXPERIMENT::DiscountedReturn()
 	cout << "Main runs" << endl;
 	OutputFile << "Simulations\tRuns\tUndiscounted return\tUndiscounted error\tDiscounted return\tDiscounted error\tTime\tUndiscounted CV\tUndiscounted CV error\tDiscounted CV\tDiscounted CV error\tTimesteps\tTimesteps error\tGGF score\tGGF score error\n";
 
-	// 89
-	// ExpParams.SimSteps = Simulator.GetHorizon(ExpParams.Accuracy, ExpParams.UndiscountedHorizon);
-	// ExpParams.NumSteps = Real.GetHorizon(ExpParams.Accuracy, ExpParams.UndiscountedHorizon);
-	ExpParams.SimSteps = 15;
-	ExpParams.NumSteps = 15;
+    SearchParams.MaxDepth = Simulator.GetHorizon(ExpParams.Accuracy, ExpParams.UndiscountedHorizon);
+    ExpParams.SimSteps = Simulator.GetHorizon(ExpParams.Accuracy, ExpParams.UndiscountedHorizon);
+    ExpParams.NumSteps = Real.GetHorizon(ExpParams.Accuracy, ExpParams.UndiscountedHorizon);
 
 	for (int i = ExpParams.MinDoubles; i <= ExpParams.MaxDoubles; i++)
 	{
@@ -247,7 +255,13 @@ void EXPERIMENT::DiscountedReturn()
 			<< "Timesteps = " << Results.Timestep.GetMean()
 			<< " +- " << Results.Timestep.GetStdErr() << endl
 			<< "GGF score = " << Results.GGFScore.GetMean()
-			<< " +- " << Results.GGFScore.GetStdErr() << endl;
+			<< " +- " << Results.GGFScore.GetStdErr() << endl
+            << "Collected type1 rocks = " << Results.CollectedType1Rocks.GetMean()
+            << " +- " << Results.CollectedType1Rocks.GetStdErr() << endl
+            << "Collected type2 rocks = " << Results.CollectedType2Rocks.GetMean()
+            << " +- " << Results.CollectedType2Rocks.GetStdErr() << endl
+            << "Apply check actions = " << Results.NumCheckAction.GetMean()
+            << " +- " << Results.NumCheckAction.GetStdErr() << endl;
 		OutputFile << SearchParams.NumSimulations << "\t"
 			<< Results.Time.GetCount() << "\t"
 			<< Results.UndiscountedReturn.GetMean() << "\t"

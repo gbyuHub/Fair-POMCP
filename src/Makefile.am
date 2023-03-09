@@ -14,6 +14,7 @@ rocksample.cpp \
 simulator.cpp \
 tag.cpp \
 testsimulator.cpp \
+mlu.cpp \
 utils.cpp
 
 noinst_HEADERS = \
@@ -33,7 +34,8 @@ simulator.h \
 statistic.h \
 tag.h \
 testsimulator.h \
-utils.h
+mlu.h \
+utils.h 
 
 pomcp_LDFLAGS = $(BOOST_LDFLAGS)
 
