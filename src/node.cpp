@@ -66,6 +66,7 @@ void QNODE::DisplayPolicy(HISTORY& history, int maxDepth, ostream& ostr) const
 MEMORY_POOL<VNODE> VNODE::VNodePool;
 
 int VNODE::NumChildren = 0;
+int VNODE::NumObjectives = 0;
 
 void VNODE::Initialise()
 {
@@ -102,8 +103,8 @@ void VNODE::SetChildren(int count, double value)
 	for (int action = 0; action < NumChildren; action++)
 	{
 		QNODE& qnode = Children[action];
-		qnode.Value.Set(count, value);
-		qnode.AMAF.Set(count, value);
+		qnode.Value.Set(count, value, VNODE::NumObjectives);
+		qnode.AMAF.Set(count, value, VNODE::NumObjectives);
 	}
 }
 

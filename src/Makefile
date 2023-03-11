@@ -111,7 +111,8 @@ am_pomcp_OBJECTS = pomcp-battleship.$(OBJEXT) \
 	pomcp-node.$(OBJEXT) pomcp-pocman.$(OBJEXT) \
 	pomcp-rocksample.$(OBJEXT) pomcp-simulator.$(OBJEXT) \
 	pomcp-tag.$(OBJEXT) pomcp-testsimulator.$(OBJEXT) \
-	pomcp-mlu.$(OBJEXT) pomcp-utils.$(OBJEXT)
+	pomcp-mlu.$(OBJEXT) pomcp-randomdomain.$(OBJEXT) \
+	pomcp-utils.$(OBJEXT)
 pomcp_OBJECTS = $(am_pomcp_OBJECTS)
 am__DEPENDENCIES_1 =
 pomcp_DEPENDENCIES = $(am__DEPENDENCIES_1)
@@ -137,9 +138,10 @@ am__depfiles_remade = ./$(DEPDIR)/pomcp-battleship.Po \
 	./$(DEPDIR)/pomcp-experiment.Po ./$(DEPDIR)/pomcp-main.Po \
 	./$(DEPDIR)/pomcp-mcts.Po ./$(DEPDIR)/pomcp-mlu.Po \
 	./$(DEPDIR)/pomcp-network.Po ./$(DEPDIR)/pomcp-node.Po \
-	./$(DEPDIR)/pomcp-pocman.Po ./$(DEPDIR)/pomcp-rocksample.Po \
-	./$(DEPDIR)/pomcp-simulator.Po ./$(DEPDIR)/pomcp-tag.Po \
-	./$(DEPDIR)/pomcp-testsimulator.Po ./$(DEPDIR)/pomcp-utils.Po
+	./$(DEPDIR)/pomcp-pocman.Po ./$(DEPDIR)/pomcp-randomdomain.Po \
+	./$(DEPDIR)/pomcp-rocksample.Po ./$(DEPDIR)/pomcp-simulator.Po \
+	./$(DEPDIR)/pomcp-tag.Po ./$(DEPDIR)/pomcp-testsimulator.Po \
+	./$(DEPDIR)/pomcp-utils.Po
 am__mv = mv -f
 AM_V_lt = $(am__v_lt_$(V))
 am__v_lt_ = $(am__v_lt_$(AM_DEFAULT_VERBOSITY))
@@ -296,6 +298,7 @@ simulator.cpp \
 tag.cpp \
 testsimulator.cpp \
 mlu.cpp \
+randomdomain.cpp \
 utils.cpp
 
 noinst_HEADERS = \
@@ -316,6 +319,7 @@ statistic.h \
 tag.h \
 testsimulator.h \
 mlu.h \
+randomdomain.h \
 utils.h 
 
 pomcp_LDFLAGS = $(BOOST_LDFLAGS)
@@ -422,6 +426,7 @@ include ./$(DEPDIR)/pomcp-mlu.Po # am--include-marker
 include ./$(DEPDIR)/pomcp-network.Po # am--include-marker
 include ./$(DEPDIR)/pomcp-node.Po # am--include-marker
 include ./$(DEPDIR)/pomcp-pocman.Po # am--include-marker
+include ./$(DEPDIR)/pomcp-randomdomain.Po # am--include-marker
 include ./$(DEPDIR)/pomcp-rocksample.Po # am--include-marker
 include ./$(DEPDIR)/pomcp-simulator.Po # am--include-marker
 include ./$(DEPDIR)/pomcp-tag.Po # am--include-marker
@@ -644,6 +649,20 @@ pomcp-mlu.obj: mlu.cpp
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
 #	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(pomcp_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o pomcp-mlu.obj `if test -f 'mlu.cpp'; then $(CYGPATH_W) 'mlu.cpp'; else $(CYGPATH_W) '$(srcdir)/mlu.cpp'; fi`
 
+pomcp-randomdomain.o: randomdomain.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(pomcp_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT pomcp-randomdomain.o -MD -MP -MF $(DEPDIR)/pomcp-randomdomain.Tpo -c -o pomcp-randomdomain.o `test -f 'randomdomain.cpp' || echo '$(srcdir)/'`randomdomain.cpp
+	$(AM_V_at)$(am__mv) $(DEPDIR)/pomcp-randomdomain.Tpo $(DEPDIR)/pomcp-randomdomain.Po
+#	$(AM_V_CXX)source='randomdomain.cpp' object='pomcp-randomdomain.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(pomcp_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o pomcp-randomdomain.o `test -f 'randomdomain.cpp' || echo '$(srcdir)/'`randomdomain.cpp
+
+pomcp-randomdomain.obj: randomdomain.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(pomcp_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT pomcp-randomdomain.obj -MD -MP -MF $(DEPDIR)/pomcp-randomdomain.Tpo -c -o pomcp-randomdomain.obj `if test -f 'randomdomain.cpp'; then $(CYGPATH_W) 'randomdomain.cpp'; else $(CYGPATH_W) '$(srcdir)/randomdomain.cpp'; fi`
+	$(AM_V_at)$(am__mv) $(DEPDIR)/pomcp-randomdomain.Tpo $(DEPDIR)/pomcp-randomdomain.Po
+#	$(AM_V_CXX)source='randomdomain.cpp' object='pomcp-randomdomain.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(pomcp_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o pomcp-randomdomain.obj `if test -f 'randomdomain.cpp'; then $(CYGPATH_W) 'randomdomain.cpp'; else $(CYGPATH_W) '$(srcdir)/randomdomain.cpp'; fi`
+
 pomcp-utils.o: utils.cpp
 	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(pomcp_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT pomcp-utils.o -MD -MP -MF $(DEPDIR)/pomcp-utils.Tpo -c -o pomcp-utils.o `test -f 'utils.cpp' || echo '$(srcdir)/'`utils.cpp
 	$(AM_V_at)$(am__mv) $(DEPDIR)/pomcp-utils.Tpo $(DEPDIR)/pomcp-utils.Po
@@ -796,6 +815,7 @@ distclean: distclean-am
 	-rm -f ./$(DEPDIR)/pomcp-network.Po
 	-rm -f ./$(DEPDIR)/pomcp-node.Po
 	-rm -f ./$(DEPDIR)/pomcp-pocman.Po
+	-rm -f ./$(DEPDIR)/pomcp-randomdomain.Po
 	-rm -f ./$(DEPDIR)/pomcp-rocksample.Po
 	-rm -f ./$(DEPDIR)/pomcp-simulator.Po
 	-rm -f ./$(DEPDIR)/pomcp-tag.Po
@@ -856,6 +876,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f ./$(DEPDIR)/pomcp-network.Po
 	-rm -f ./$(DEPDIR)/pomcp-node.Po
 	-rm -f ./$(DEPDIR)/pomcp-pocman.Po
+	-rm -f ./$(DEPDIR)/pomcp-randomdomain.Po
 	-rm -f ./$(DEPDIR)/pomcp-rocksample.Po
 	-rm -f ./$(DEPDIR)/pomcp-simulator.Po
 	-rm -f ./$(DEPDIR)/pomcp-tag.Po

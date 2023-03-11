@@ -20,6 +20,7 @@ public:
 
 	TAG(int numrobots);
 
+	std::string GetClassName() const;
 	virtual STATE* Copy(const STATE& state) const;
 	virtual void Validate(const STATE& state) const;
 	virtual STATE* CreateStartState() const;

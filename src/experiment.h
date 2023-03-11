@@ -21,9 +21,9 @@ struct RESULTS
 	STATISTIC DiscountedRewCV;
 	STATISTIC GGFScore;
 	STATISTIC Timestep;
-	VECTORSTATISTIC Reward = VECTORSTATISTIC(2);
-	VECTORSTATISTIC DiscountedReturn = VECTORSTATISTIC(2);
-	VECTORSTATISTIC UndiscountedReturn = VECTORSTATISTIC(2);
+	VECTORSTATISTIC Reward;
+	VECTORSTATISTIC DiscountedReturn;
+	VECTORSTATISTIC UndiscountedReturn;
     STATISTIC CollectedType1Rocks;
     STATISTIC CollectedType2Rocks;
     STATISTIC NumCheckAction;
@@ -65,6 +65,7 @@ public:
 		bool usePOSTS;
 		bool ggi;
 		bool ws; // weighted sum
+		int NumObjectives;
 	};
 
 	EXPERIMENT(const SIMULATOR& real, const SIMULATOR& simulator,

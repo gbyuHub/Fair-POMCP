@@ -71,6 +71,7 @@ public:
 	SIMULATOR(int numActions, int numObservations, int numObjectives, double discount = 1.0);
 	virtual ~SIMULATOR();
 
+	virtual std::string GetClassName() const = 0;
 	// Create start start state (can be stochastic)
 	virtual STATE* CreateStartState() const = 0;
 

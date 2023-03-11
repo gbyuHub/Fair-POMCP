@@ -34,6 +34,7 @@ public:
 
 	ROCKSAMPLE(int size, int rocks, int numObjectives);
 
+	virtual std::string GetClassName() const;
 	virtual STATE* Copy(const STATE& state) const;
 	virtual void Validate(const STATE& state) const;
 	virtual STATE* CreateStartState() const;

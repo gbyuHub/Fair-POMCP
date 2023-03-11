@@ -4,6 +4,7 @@
 // #include "pocman.h"
 #include "rocksample.h"
 #include "mlu.h"
+#include "randomdomain.h"
 // #include "tag.h"
 #include "experiment.h"
 #include <boost/program_options.hpp>
@@ -129,10 +130,20 @@ int main(int argc, char* argv[])
     {
         real = new ROCKSAMPLE(size, number, 2);
         simulator = new ROCKSAMPLE(size, number, 2);
+        expParams.NumObjectives = 2;
+        searchParams.NumObjectives = 2;
     }
     else if (problem == "mlu") {
         real = new MLU(5);
         simulator = new MLU(5);
+        expParams.NumObjectives = 5;
+        searchParams.NumObjectives = 5;
+    }
+    else if (problem == "random") {
+        real = new RANDOMENV();
+        simulator = new RANDOMENV();
+        expParams.NumObjectives = 2;
+        searchParams.NumObjectives = 2;
     }
     else 
     {

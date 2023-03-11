@@ -46,10 +46,13 @@ MCTS::PARAMS::PARAMS()
 MCTS::MCTS(const SIMULATOR& simulator, const PARAMS& params)
 	: Simulator(simulator),
 	Params(params),
-	TreeDepth(0)
+	TreeDepth(0),
+	StatTotalReward(params.NumObjectives)
 {
 	VNODE::NumChildren = Simulator.GetNumActions();
 	QNODE::NumChildren = Simulator.GetNumObservations();
+	VNODE::NumObjectives = Params.NumObjectives;
+	// StatTotalReward = VECTORSTATISTIC(Params.NumObjectives);
 
 	Root = ExpandNode(Simulator.CreateStartState());
 
@@ -133,7 +136,7 @@ void MCTS::RolloutSearch()
 		Simulator.Validate(*state);
 
 		int observation;
-		std::vector<double> immediateReward(2, 0.0), delayedReward(2, 0.0), totalReward(2, 0.0);
+		std::vector<double> immediateReward(Params.NumObjectives, 0.0), delayedReward(Params.NumObjectives, 0.0), totalReward(Params.NumObjectives, 0.0);
 		bool terminal = Simulator.Step(*state, action, observation, immediateReward);
 
 		VNODE*& vnode = Root->Child(action).Child(observation);
@@ -147,7 +150,7 @@ void MCTS::RolloutSearch()
 		delayedReward = Rollout(*state);
 
 		// totalReward = immediateReward + Simulator.GetDiscount() * delayedReward;
-		for (int i = 0; i < 2; i++){
+		for (int i = 0; i < Params.NumObjectives; i++){
 			totalReward[i] = immediateReward[i] + Simulator.GetDiscount() * delayedReward[i];
 		}
 		Root->Child(action).Value.Add(totalReward);
@@ -197,12 +200,12 @@ std::vector<double> MCTS::SimulateV(STATE& state, VNODE* vnode, std::vector<doub
 	PeakTreeDepth = TreeDepth;
 	if (TreeDepth >= Params.MaxDepth) // search horizon reached
 	{
-		return {0.0, 0.0};
+		return vector<double> (Params.NumObjectives, 0.0);
 	}
 	if (TreeDepth == 1)
 		AddSample(vnode, state);
 	if (stop_search)
-		return {0.0, 0.0};
+		return vector<double> (Params.NumObjectives, 0.0);
 
 	int action = GreedyUCB(vnode, true);
 	if (Params.Verbose >= 1) cout << "[TREE SEARCH]: select action " << action << endl;
@@ -219,7 +222,7 @@ std::vector<double> MCTS::SimulateQ(STATE& state, QNODE& qnode, int action, std:
 {
 	int observation;
 	// double immediateReward, delayedReward = 0;
-	vector<double> immediateReward(2, 0.0), delayedReward(2, 0.0);
+	vector<double> immediateReward(Params.NumObjectives, 0.0), delayedReward(Params.NumObjectives, 0.0);
 	vector<double> cumulative_past_rew_old = cumulative_past_rew;
 
 	if (Simulator.HasAlpha())
@@ -230,7 +233,7 @@ std::vector<double> MCTS::SimulateQ(STATE& state, QNODE& qnode, int action, std:
 		if (stop_search)
 			cout << "[TREE] Sample a rock with reward " << immediateReward << endl;
 	}
-	for (int i = 0; i < cumulative_past_rew.size(); i++) {
+	for (int i = 0; i < Params.NumObjectives; i++) {
 		cumulative_past_rew[i] += Simulator.GetDiscount() * immediateReward[i];
 	}
 	assert(observation >= 0 && observation < Simulator.GetNumObservations());
@@ -263,13 +266,13 @@ std::vector<double> MCTS::SimulateQ(STATE& state, QNODE& qnode, int action, std:
 	}
 
 	// double totalReward = immediateReward + Simulator.GetDiscount() * delayedReward;
-	std::vector<double> totalReward(2, 0.0);
-	for (int i = 0; i < 2; i++){
+	std::vector<double> totalReward(Params.NumObjectives, 0.0);
+	for (int i = 0; i < Params.NumObjectives; i++){
 		totalReward[i] = immediateReward[i] + Simulator.GetDiscount() * delayedReward[i];
 	}
 	// qnode.Value.AddCumulatedReward(cumulatedReward);
 	if (Params.ConsiderPast) {
-		for (int i = 0; i < 2; i++) {
+		for (int i = 0; i < Params.NumObjectives; i++) {
 			totalReward[i] = cumulative_past_rew_old[i] + Simulator.GetDiscount() * totalReward[i];
 		}
 	}
@@ -293,7 +296,7 @@ void MCTS::AddRave(VNODE* vnode, double totalReward)
 VNODE* MCTS::ExpandNode(const STATE* state)
 {
 	VNODE* vnode = VNODE::Create();
-	vnode->Value.Set(0, 0);
+	vnode->Value.Set(0, 0, Params.NumObjectives);
 	Simulator.Prior(state, History, vnode, Status);
 
 	if (Params.Verbose >= 2)
@@ -373,14 +376,14 @@ std::vector<double> MCTS::Rollout(STATE& state)
 		cout << "Starting rollout" << endl;
 
 	// double totalReward = 0.0;
-	std::vector<double> totalReward(2, 0.0);
+	std::vector<double> totalReward(Params.NumObjectives, 0.0);
 	double discount = 1.0;
 	bool terminal = false;
 	int numSteps;
 	for (numSteps = 0; numSteps + TreeDepth < Params.MaxDepth && !terminal; ++numSteps)
 	{
 		int observation;
-		std::vector<double> reward(2, 0.0);
+		std::vector<double> reward(Params.NumObjectives, 0.0);
 
 		int action = Simulator.SelectRandom(state, History, Status);
 		// cout << "[ROLLOUT]: select action " << action << endl;
@@ -402,7 +405,7 @@ std::vector<double> MCTS::Rollout(STATE& state)
 		}
 
 		// totalReward += reward * discount;
-		for (int i = 0; i < 2; i++){
+		for (int i = 0; i < Params.NumObjectives; i++){
 			totalReward[i] += reward[i] * discount;
 		}
 		if (stop_search) 

@@ -34,6 +34,7 @@ public:
 
 	BATTLESHIP(int xsize = 10, int ysize = 10, int maxlength = 4);
 
+	virtual std::string GetClassName() const;
 	virtual STATE* Copy(const STATE& state) const;
 	virtual void Validate(const STATE& state) const;
 	virtual STATE* CreateStartState() const;

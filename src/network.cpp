@@ -54,6 +54,11 @@ void NETWORK::Make3LegsNeighbours()
 	}
 }
 
+std::string NETWORK::GetClassName() const
+{
+	return "NETWORK";
+}
+
 STATE* NETWORK::Copy(const STATE& state) const
 {
 	const NETWORK_STATE& nstate = safe_cast<const NETWORK_STATE&>(state);

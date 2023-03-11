@@ -26,13 +26,13 @@ class VALUE
 {
 public:
 
-	void Set(double count, double value)
+	void Set(double count, double value, int num_objectives)
 	{
 		Count = count;
 		// Total = value * count;
 		// SquaredTotal = value*value*count;
-		Total.resize(2);
-		for (int i = 0; i < 2; i++){
+		Total.resize(num_objectives);
+		for (int i = 0; i < num_objectives; i++){
 			Total[i] = value * count;
 		}
 	}
@@ -40,8 +40,8 @@ public:
 	void Add(const std::vector<double>& totalReward)
 	{
 		Count += 1.0;
-		assert(totalReward.size() == 2);
-		for (int i = 0; i < 2; i++){
+		assert(totalReward.size() == Total.size());
+		for (int i = 0; i < Total.size(); i++){
 			Total[i] += totalReward[i];
 		}
 		// Total += totalReward;
@@ -51,8 +51,8 @@ public:
 	void Add(const std::vector<double>& totalReward, COUNT weight)
 	{
 		Count += weight;
-		assert(totalReward.size() == 2);
-		for (int i = 0; i < 2; i++){
+		assert(totalReward.size() == Total.size());
+		for (int i = 0; i < Total.size(); i++){
 			Total[i] += totalReward[i] * weight;
 		}
 		// Total += totalReward * weight;
@@ -65,8 +65,8 @@ public:
 			return Total;
 		}
 		else {
-			std::vector<double> ret(2, 0.0);
-			for (int i = 0; i < 2; i++){
+			std::vector<double> ret(Total.size(), 0.0);
+			for (int i = 0; i < Total.size(); i++){
 				ret[i] = Total[i] / Count;
 			}
 			return ret;
@@ -141,6 +141,7 @@ public:
 	void DisplayPolicy(HISTORY& history, int maxDepth, std::ostream& ostr) const;
 
 	static int NumChildren;
+	static int NumObjectives;
 private:
 	std::vector<QNODE> Children;
 	BELIEF_STATE BeliefState;

@@ -14,6 +14,11 @@ TAG::TAG(int opponents)
 	Discount = 0.95;
 }
 
+std::string TAG::GetClassName() const
+{
+	return "TAG";
+}
+
 STATE* TAG::Copy(const STATE& state) const
 {
 	const TAG_STATE& tagstate = safe_cast<const TAG_STATE&>(state);

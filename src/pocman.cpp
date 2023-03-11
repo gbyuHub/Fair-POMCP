@@ -122,6 +122,11 @@ FULL_POCMAN::FULL_POCMAN()
 	PassageY = 10;
 }
 
+std::string POCMAN::GetClassName() const
+{
+	return "POCMAN";
+}
+
 STATE* POCMAN::Copy(const STATE& state) const
 {
 	const POCMAN_STATE& pocstate = safe_cast<const POCMAN_STATE&>(state);

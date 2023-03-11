@@ -9,7 +9,7 @@
 class VECTORSTATISTIC
 {
 public:
-
+	VECTORSTATISTIC();
 	VECTORSTATISTIC(int dim);
 	VECTORSTATISTIC(int dim, double val, int count);
 
@@ -34,6 +34,12 @@ private:
 	std::vector<double> Variance;
 	std::vector<double> Min, Max;
 };
+
+inline VECTORSTATISTIC::VECTORSTATISTIC()
+{
+	Dim = 0;
+	Clear();
+}
 
 inline VECTORSTATISTIC::VECTORSTATISTIC(int dim)
 {

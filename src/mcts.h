@@ -34,6 +34,7 @@ public:
 		bool DisableTree;
 		std::string Strategy;
 		bool ConsiderPast; // consider past cumulated reward or not
+		int NumObjectives;
 	};
 
 	MCTS(const SIMULATOR& simulator, const PARAMS& params);
@@ -83,7 +84,7 @@ public:
 	SIMULATOR::STATUS Status;
 	STATISTIC StatTreeDepth;
 	STATISTIC StatRolloutDepth;
-	VECTORSTATISTIC StatTotalReward = VECTORSTATISTIC(2);
+	VECTORSTATISTIC StatTotalReward;
 private:
 	static void UnitTestGreedy();
 	static void UnitTestUCB();

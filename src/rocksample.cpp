@@ -124,6 +124,10 @@ void ROCKSAMPLE::Init_11_11()
 	}
 }
 
+std::string ROCKSAMPLE::GetClassName() const
+{
+	return "ROCKSAMPLE";
+}
 
 STATE* ROCKSAMPLE::Copy(const STATE& state) const
 {

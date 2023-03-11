@@ -3,6 +3,11 @@
 
 using namespace UTILS;
 
+std::string TEST_SIMULATOR::GetClassName() const 
+{
+	return "TEST_SIMULATOR";
+}
+
 STATE* TEST_SIMULATOR::Copy(const STATE& state) const
 {
 	const TEST_STATE& tstate = safe_cast<const TEST_STATE&>(state);

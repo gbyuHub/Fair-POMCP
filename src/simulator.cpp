@@ -21,7 +21,8 @@ SIMULATOR::SIMULATOR()
 	: Discount(1.0),
 	NumActions(0),
 	NumObservations(0),
-	RewardRange(1.0)
+	RewardRange(1.0),
+	NumObjectives(1)
 {
 }
 
@@ -36,6 +37,11 @@ SIMULATOR::SIMULATOR(int numActions, int numObservations, int numObjectives, dou
 
 SIMULATOR::~SIMULATOR()
 {
+}
+
+std::string SIMULATOR::GetClassName() const
+{
+	return "SIMULATOR";
 }
 
 void SIMULATOR::Validate(const STATE& state) const
@@ -107,8 +113,8 @@ void SIMULATOR::Prior(const STATE* state, const HISTORY& history,
 		{
 			int a = *i_action;
 			QNODE& qnode = vnode->Child(a);
-			qnode.Value.Set(0, 0);
-			qnode.AMAF.Set(0, 0);
+			qnode.Value.Set(0, 0, NumObjectives);
+			qnode.AMAF.Set(0, 0, NumObjectives);
 		}
 	}
 
@@ -121,8 +127,8 @@ void SIMULATOR::Prior(const STATE* state, const HISTORY& history,
 		{
 			int a = *i_action;
 			QNODE& qnode = vnode->Child(a);
-			qnode.Value.Set(Knowledge.SmartTreeCount, Knowledge.SmartTreeValue);
-			qnode.AMAF.Set(Knowledge.SmartTreeCount, Knowledge.SmartTreeValue);
+			qnode.Value.Set(Knowledge.SmartTreeCount, Knowledge.SmartTreeValue, NumObjectives);
+			qnode.AMAF.Set(Knowledge.SmartTreeCount, Knowledge.SmartTreeValue, NumObjectives);
 		}
 	}
 }
