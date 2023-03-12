@@ -122,7 +122,7 @@ FULL_POCMAN::FULL_POCMAN()
 	PassageY = 10;
 }
 
-std::string POCMAN::GetClassName() const
+std::string POCMAN::GetDomainName() const
 {
 	return "POCMAN";
 }

@@ -5,6 +5,7 @@
 #include "rocksample.h"
 #include "mlu.h"
 #include "randomdomain.h"
+#include "mwa.h"
 // #include "tag.h"
 #include "experiment.h"
 #include <boost/program_options.hpp>
@@ -48,6 +49,7 @@ int main(int argc, char* argv[])
         ("problem", value<string>(&problem), "problem to run")
         ("outputfile", value<string>(&outputfile)->default_value("output.txt"), "summary output file")
 		("strategy", value<string>(&searchParams.Strategy)->default_value("GGF"), "action selection strategy")
+        ("considerpast", value<bool>(&searchParams.ConsiderPast), "Consider the past returns or not")
         ("policy", value<string>(&policy), "policy file (explicit POMDPs only)")
         ("size", value<int>(&size), "size of problem (problem specific)")
         ("number", value<int>(&number), "number of elements in problem (problem specific)")
@@ -136,6 +138,12 @@ int main(int argc, char* argv[])
     else if (problem == "mlu") {
         real = new MLU(5);
         simulator = new MLU(5);
+        expParams.NumObjectives = 5;
+        searchParams.NumObjectives = 5;
+    }
+    else if (problem == "mwa") {
+        real = new MWA();
+        simulator = new MWA();
         expParams.NumObjectives = 5;
         searchParams.NumObjectives = 5;
     }

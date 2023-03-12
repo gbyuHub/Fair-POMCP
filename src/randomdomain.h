@@ -17,7 +17,7 @@ class RANDOMENV: public SIMULATOR
 public:
 	RANDOMENV(int numStates = 2, int numActions = 2, int numObs = 2, int numObjectives = 2);
 
-	virtual std::string GetClassName() const;
+	virtual std::string GetDomainName() const;
 	virtual STATE* Copy(const STATE& state) const;
 	virtual void Validate(const STATE& state) const;
 	virtual STATE* CreateStartState() const;

@@ -25,7 +25,7 @@ class MLU: public SIMULATOR
 public:
     MLU(int numUnloadPos, int xsize = 8, int ysize = 3);
 
-	virtual std::string GetClassName() const;
+	virtual std::string GetDomainName() const;
 	virtual STATE* Copy(const STATE& state) const;
 	virtual void Validate(const STATE& state) const;
 	virtual STATE* CreateStartState() const;

@@ -7,17 +7,17 @@
 using namespace std;
 using namespace UTILS;
 
-template < class T >
-std::ostream& operator << (std::ostream& os, const std::vector<T>& v) 
-{
-    os << "[";
-    for (typename std::vector<T>::const_iterator ii = v.begin(); ii != v.end(); ++ii)
-    {
-        os << *ii << (ii != v.end()-1 ? " " : "");
-    }
-    os << "]";
-    return os;
-}
+// template < class T >
+// std::ostream& operator << (std::ostream& os, const std::vector<T>& v) 
+// {
+//     os << "[";
+//     for (typename std::vector<T>::const_iterator ii = v.begin(); ii != v.end(); ++ii)
+//     {
+//         os << *ii << (ii != v.end()-1 ? " " : "");
+//     }
+//     os << "]";
+//     return os;
+// }
 
 //-----------------------------------------------------------------------------
 
@@ -204,8 +204,8 @@ std::vector<double> MCTS::SimulateV(STATE& state, VNODE* vnode, std::vector<doub
 	}
 	if (TreeDepth == 1)
 		AddSample(vnode, state);
-	if (stop_search)
-		return vector<double> (Params.NumObjectives, 0.0);
+	// if (stop_search)
+	// 	return vector<double> (Params.NumObjectives, 0.0);
 
 	int action = GreedyUCB(vnode, true);
 	if (Params.Verbose >= 1) cout << "[TREE SEARCH]: select action " << action << endl;
@@ -408,8 +408,8 @@ std::vector<double> MCTS::Rollout(STATE& state)
 		for (int i = 0; i < Params.NumObjectives; i++){
 			totalReward[i] += reward[i] * discount;
 		}
-		if (stop_search) 
-			break;
+		// if (stop_search) 
+		// 	break;
 		discount *= Simulator.GetDiscount();
 	}
 	StatRolloutDepth.Add(numSteps);

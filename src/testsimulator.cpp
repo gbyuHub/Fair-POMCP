@@ -3,7 +3,7 @@
 
 using namespace UTILS;
 
-std::string TEST_SIMULATOR::GetClassName() const 
+std::string TEST_SIMULATOR::GetDomainName() const 
 {
 	return "TEST_SIMULATOR";
 }

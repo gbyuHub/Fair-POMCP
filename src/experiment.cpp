@@ -4,17 +4,6 @@
 using namespace std;
 using namespace UTILS;
 
-template < class T >
-std::ostream& operator << (std::ostream& os, const std::vector<T>& v) 
-{
-    os << "[";
-    for (typename std::vector<T>::const_iterator ii = v.begin(); ii != v.end(); ++ii)
-    {
-        os << *ii << (ii != v.end() - 1 ? " " : "");
-    }
-    os << "]";
-    return os;
-}
 
 EXPERIMENT::PARAMS::PARAMS()
 	: NumRuns(1),
@@ -72,7 +61,7 @@ void EXPERIMENT::Run()
 	bool outOfParticles = false;
 	int t = 0;
     // variables only for rocksample problem
-	bool is_rocksample_problem = (Real.GetClassName() == "ROCKSAMPLE" ? true : false);
+	bool is_rocksample_problem = (Real.GetDomainName() == "ROCKSAMPLE" ? true : false);
     int collected_type1_rocks_num = 0;
     int collected_type2_rocks_num = 0;
     int num_check_action = 0;
@@ -82,12 +71,11 @@ void EXPERIMENT::Run()
 	if (SearchParams.Verbose >= 1)
 		Real.DisplayState(*state, cout);
 
-	for (t = 0; t < ExpParams.NumSteps; t++)
-	// for (collected_rock_num = 0; collected_rock_num < 2; )
+	for (t = 0; t < ExpParams.NumSteps; )
 	{
 		int observation;
 		vector<double> reward(ExpParams.NumObjectives, 0.0);
-		// SearchParams.MaxDepth = ExpParams.NumSteps - t;
+		SearchParams.MaxDepth = ExpParams.NumSteps - t;
         int action = mcts->SelectAction(cumulativeReward);
 		terminal = Real.Step(*state, action, observation, reward);
 		t++;
@@ -96,7 +84,7 @@ void EXPERIMENT::Run()
 		if (is_rocksample_problem && !terminal && accumulate(reward.begin(), reward.end(), 0) > 0) 
 		{
 			collected_rock_num++;
-			if (reward[0] < reward[1]) collected_type1_rocks_num++;
+			if (reward[0] > reward[1]) collected_type1_rocks_num++;
 			else collected_type2_rocks_num++;
 		}
 
@@ -153,7 +141,7 @@ void EXPERIMENT::Run()
 			if (is_rocksample_problem && !terminal && accumulate(reward.begin(), reward.end(), 0) > 0) 
 			{
 				collected_rock_num++;
-				if (reward[0] < reward[1]) collected_type1_rocks_num++;
+				if (reward[0] > reward[1]) collected_type1_rocks_num++;
 				else collected_type2_rocks_num++;
 			}
 
@@ -233,7 +221,7 @@ void EXPERIMENT::DiscountedReturn()
     SearchParams.MaxDepth = Simulator.GetHorizon(ExpParams.Accuracy, ExpParams.UndiscountedHorizon);
     ExpParams.SimSteps = Simulator.GetHorizon(ExpParams.Accuracy, ExpParams.UndiscountedHorizon);
     ExpParams.NumSteps = Real.GetHorizon(ExpParams.Accuracy, ExpParams.UndiscountedHorizon);
-	bool is_rocksample_problem = (Real.GetClassName() == "ROCKSAMPLE" ? true : false);
+	bool is_rocksample_problem = (Real.GetDomainName() == "ROCKSAMPLE" ? true : false);
 
 	for (int i = ExpParams.MinDoubles; i <= ExpParams.MaxDoubles; i++)
 	{
@@ -248,7 +236,8 @@ void EXPERIMENT::DiscountedReturn()
 		Results.Clear();
 		MultiRun();
 
-		cout << "Simulations = " << SearchParams.NumSimulations << endl
+		cout << endl 
+			<< "Simulations = " << SearchParams.NumSimulations << endl
 			<< "Runs = " << Results.Time.GetCount() << endl
 			<< "Undiscounted return = " << Results.UndiscountedReturn.GetMean()
 			<< " +- " << Results.UndiscountedReturn.GetStdErr() << endl

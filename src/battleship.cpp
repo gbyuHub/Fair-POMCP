@@ -26,7 +26,7 @@ BATTLESHIP::BATTLESHIP(int xsize, int ysize, int maxlength)
 	TotalRemaining = MaxLength - 1;
 }
 
-std::string BATTLESHIP::GetClassName() const
+std::string BATTLESHIP::GetDomainName() const
 {
 	return "BATTLESHIP";
 }

@@ -22,7 +22,7 @@ public:
 		MaxDepth(maxDepth)
 	{ }
 
-	virtual std::string GetClassName() const;
+	virtual std::string GetDomainName() const;
 	virtual STATE* CreateStartState() const;
 	virtual bool Step(STATE& state, int action,
 		int& observation, double& reward) const;

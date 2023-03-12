@@ -54,7 +54,7 @@ void NETWORK::Make3LegsNeighbours()
 	}
 }
 
-std::string NETWORK::GetClassName() const
+std::string NETWORK::GetDomainName() const
 {
 	return "NETWORK";
 }

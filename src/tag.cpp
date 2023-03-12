@@ -14,7 +14,7 @@ TAG::TAG(int opponents)
 	Discount = 0.95;
 }
 
-std::string TAG::GetClassName() const
+std::string TAG::GetDomainName() const
 {
 	return "TAG";
 }

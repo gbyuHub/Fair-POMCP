@@ -16,6 +16,7 @@ tag.cpp \
 testsimulator.cpp \
 mlu.cpp \
 randomdomain.cpp \
+mwa.cpp \
 utils.cpp
 
 noinst_HEADERS = \
@@ -37,6 +38,7 @@ tag.h \
 testsimulator.h \
 mlu.h \
 randomdomain.h \
+mwa.h \
 utils.h 
 
 pomcp_LDFLAGS = $(BOOST_LDFLAGS)

@@ -124,7 +124,7 @@ void ROCKSAMPLE::Init_11_11()
 	}
 }
 
-std::string ROCKSAMPLE::GetClassName() const
+std::string ROCKSAMPLE::GetDomainName() const
 {
 	return "ROCKSAMPLE";
 }
@@ -200,14 +200,15 @@ bool ROCKSAMPLE::Step(STATE& state, int action,
 			if (rockstate.AgentPos.X + 1 < Size)
 			{
 				rockstate.AgentPos.X++;
-				break;
+				// break;
 			}
 			else
 			{
 				// reward for reaching the terminal state
-				reward = {0.0, 0.0};
-				return true;
+				reward = {-100, -100};
+				// return true;
 			}
+			break;
 
 		case COORD::E_NORTH:
 			if (rockstate.AgentPos.Y + 1 < Size) 
@@ -245,10 +246,10 @@ bool ROCKSAMPLE::Step(STATE& state, int action,
 		{
 			rockstate.Rocks[rock].Collected = true;
 			if (0 == rockstate.Rocks[rock].Type) {
-				reward = {1, 9};
+				reward[0] += 10;
 			}
 			else {
-				reward = {9, 1};
+				reward[1] += 10;
 			}
 		}
 		else
@@ -327,7 +328,8 @@ void ROCKSAMPLE::GenerateLegal(const STATE& state, const HISTORY& history,
 	if (rockstate.AgentPos.Y + 1 < Size)
 		legal.push_back(COORD::E_NORTH);
 
-	legal.push_back(COORD::E_EAST);
+	if (rockstate.AgentPos.X + 1 < Size)
+		legal.push_back(COORD::E_EAST);
 
 	if (rockstate.AgentPos.Y - 1 >= 0)
 		legal.push_back(COORD::E_SOUTH);

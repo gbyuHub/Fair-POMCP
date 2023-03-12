@@ -9,6 +9,7 @@
 #include "memorypool.h"
 #include <algorithm>
 #include <numeric>
+#include <iostream>
 
 #define LargeInteger 1000000
 #define Infinity 1e+10
@@ -22,6 +23,18 @@
 
 namespace UTILS
 {
+
+	template < class T >
+	std::ostream& operator << (std::ostream& os, const std::vector<T>& v) 
+	{
+		os << "[";
+		for (typename std::vector<T>::const_iterator ii = v.begin(); ii != v.end(); ++ii)
+		{
+			os << *ii << (ii != v.end()-1 ? " " : "");
+		}
+		os << "]";
+		return os;
+	}
 
 	inline double GGF(std::vector<double> utility)
 	{
@@ -97,6 +110,26 @@ namespace UTILS
 	inline bool Bernoulli(double p)
 	{
 		return rand() < p * RAND_MAX;
+	}
+
+	inline int sample(const std::vector<double> prob)
+	{
+		int n = prob.size();
+		std::vector<double> pre_sum(n+1, 0.0);
+		for (int i = 1; i <= n; i++) {
+			pre_sum[i] = pre_sum[i-1] + prob[i-1];
+		}
+		double p = RandomDouble(0.0, 1.0);
+		int idx = 0;
+		for (; idx < n; idx++) {
+			if (pre_sum[idx] <= p && p <= pre_sum[idx+1]) break;
+		}
+		if (idx >= n) {
+			std::cout << p << ", " << prob << std::endl;
+			idx = Random(n);
+		}
+		assert (idx >= 0 && idx < n);
+		return idx;
 	}
 
 	inline bool Near(double x, double y, double tol)

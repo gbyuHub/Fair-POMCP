@@ -54,7 +54,7 @@ STATE* MLU::CreateStartState() const
     return mlustate;
 }
 
-std::string MLU::GetClassName() const
+std::string MLU::GetDomainName() const
 {
     return "MLU";
 }

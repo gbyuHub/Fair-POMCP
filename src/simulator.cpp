@@ -39,7 +39,7 @@ SIMULATOR::~SIMULATOR()
 {
 }
 
-std::string SIMULATOR::GetClassName() const
+std::string SIMULATOR::GetDomainName() const
 {
 	return "SIMULATOR";
 }

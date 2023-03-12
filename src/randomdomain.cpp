@@ -56,7 +56,7 @@ void RANDOMENV::GenerateRewFunc()
     rew_func[1][1] = {8, 2};
 }
 
-std::string RANDOMENV::GetClassName() const
+std::string RANDOMENV::GetDomainName() const
 {
     return "RANDOM_DOMAIN";
 }
