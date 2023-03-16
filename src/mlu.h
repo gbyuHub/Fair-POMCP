@@ -47,18 +47,6 @@ public:
 	virtual void DisplayAction(int action, std::ostream& ostr) const;
 
 protected:
-    // observations
-	enum
-	{
-		E_OBS1,
-		E_OBS2,
-		E_OBS3,
-        E_OBS4,
-        E_OBS5,
-        E_OBS6,
-        E_OBS7
-	};
-
 	enum
 	{
 		// two actuator actions

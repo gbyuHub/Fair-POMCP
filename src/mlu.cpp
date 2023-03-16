@@ -11,9 +11,9 @@ MLU::MLU(int numUnloadPos, int xsize /*=8*/, int ysize /*=3*/)
     NumUnloadPos(numUnloadPos)
 {
 	NumActions = 6;
-	NumObservations = 1 << 4;
+	NumObservations = 1 << 5;
     NumObjectives = numUnloadPos;
-	RewardRange = 100;
+	RewardRange = 40.0;
 	Discount = 1.0;
 
     InitStandardMap();
@@ -40,15 +40,15 @@ void MLU::InitStandardMap()
 STATE* MLU::CreateStartState() const
 {
     MLU_STATE* mlustate = MemoryPool.Allocate();
-    // int x, y;
-    // while (true) {
-    //     x = Random(xSize);
-    //     y = Random(ySize);
-    //     if (Maze(x, y) != -1) {
-    //         mlustate->AgentPos = COORD(x, y);
-    //         break;
-    //     }
-    // }
+    int x, y;
+    while (true) {
+        x = Random(xSize);
+        y = Random(ySize);
+        if (Maze(x, y) != -1) {
+            mlustate->AgentPos = COORD(x, y);
+            break;
+        }
+    }
     mlustate->AgentPos = StartPos;
     mlustate->IsLoaded = false;
     return mlustate;
@@ -84,6 +84,7 @@ bool MLU::Step(STATE& state, int action,
 {
     MLU_STATE& mlustate = safe_cast<MLU_STATE&>(state);
     int x = mlustate.AgentPos.X, y = mlustate.AgentPos.Y;
+    reward.reserve(NumUnloadPos);
     std::fill(reward.begin(), reward.end(), 0.0);
     
     // move actions
@@ -92,35 +93,26 @@ bool MLU::Step(STATE& state, int action,
         {
         case COORD::E_NORTH:
             if (y + 1 < ySize && Maze(x, y+1) != -1) {
-                mlustate.AgentPos.Y++;
+                if (Bernoulli(0.98))
+                    mlustate.AgentPos.Y++;
             }
-            else {
-                assert(false && "Illegal action: NORTH!");
-            }
-            break;
-        
+            break;       
         case COORD::E_EAST:
             if (x + 1 < xSize && Maze(x+1, y) != -1) {
-                mlustate.AgentPos.X++;
-            }
-            else {
-                assert(false && "Illegal action: EAST!");
+                if (Bernoulli(0.98))
+                    mlustate.AgentPos.X++;
             }
             break;
         case COORD::E_SOUTH:
             if (y - 1 >= 0 && Maze(x, y-1) != -1) {
-                mlustate.AgentPos.Y--;
-            }
-            else {
-                assert(false && "Illegal action: SOUTH!");
+                if (Bernoulli(0.98))
+                    mlustate.AgentPos.Y--;
             }
             break;
         case COORD::E_WEST:
             if (x - 1 >= 0 && Maze(x-1, y) != -1) {
-                mlustate.AgentPos.X--;
-            }
-            else {
-                assert(false && "Illegal action: WEST!");
+                if (Bernoulli(0.98))
+                    mlustate.AgentPos.X--;
             }
             break;
         }
@@ -128,25 +120,23 @@ bool MLU::Step(STATE& state, int action,
 
     if (action == E_LOAD) {
         if (Maze(x, y) == 2 && !mlustate.IsLoaded) {
-            mlustate.IsLoaded = true;
-        }
-        else {
-            assert(false && "Illegal action: LOAD!");
+            if (Bernoulli(0.98))
+                mlustate.IsLoaded = true;
         }
     }
 
     if (action == E_UNLOAD) {
         if (Maze(x, y) == 3 && mlustate.IsLoaded) {
-            for (int i = 0; i < NumUnloadPos; i++) {
-                if (UnloadPos[i] == mlustate.AgentPos) {
-                    mlustate.IsLoaded = false;
-                    reward[i] += 10;
-                    break;
+            if (Bernoulli(0.98)) 
+            {
+                for (int i = 0; i < NumUnloadPos; i++) {
+                    if (UnloadPos[i] == mlustate.AgentPos) {
+                        mlustate.IsLoaded = false;
+                        reward[i] += 10;
+                        break;
+                    }
                 }
             }
-        }
-        else {
-            assert(false && "Illegal action: UNLOAD!");
         }
     }
 
@@ -158,49 +148,39 @@ bool MLU::Step(STATE& state, int action,
 void MLU::GenerateLegal(const STATE& state, const HISTORY& history,
 		std::vector<int>& legal, const STATUS& status) const
 {
-    const MLU_STATE& mlustate = safe_cast<const MLU_STATE&>(state);
-    COORD agent_pos = mlustate.AgentPos;
-    int x = agent_pos.X, y = agent_pos.Y;
-    if (y + 1 < ySize && Maze(x, y+1) != -1) {
-        legal.push_back(COORD::E_NORTH);
-    }
-    if (x + 1 < xSize && Maze(x+1, y) != -1) {
-        legal.push_back(COORD::E_EAST);
-    }
-    if (x - 1 >= 0 && Maze(x-1, y) != -1) {
-        legal.push_back(COORD::E_WEST);
-    }
-    if (y - 1 >= 0 && Maze(x, y-1) != -1) {
-        legal.push_back(COORD::E_SOUTH);
-    }
-    if (Maze(agent_pos) == 2 && !mlustate.IsLoaded) {
-        legal.push_back(E_LOAD);
-    }
-    if (Maze(agent_pos) == 3 && mlustate.IsLoaded) {
-        legal.push_back(E_UNLOAD);
-    }
+    legal.push_back(COORD::E_NORTH);
+    legal.push_back(COORD::E_EAST);
+    legal.push_back(COORD::E_SOUTH);
+    legal.push_back(COORD::E_WEST);
+
+    legal.push_back(E_LOAD);
+    legal.push_back(E_UNLOAD);
 }
 
 bool MLU::LocalMove(STATE& state, const HISTORY& history,
 		int stepObservation, const STATUS& status) const
 {
     MLU_STATE& mlustate = safe_cast<MLU_STATE&>(state);
+    int action = history.Back().Action;
+    // if (action > 3) // load or unload action
+    //     return true;
     // randomly move the agent to a new position
     int x, y;
     while (true) {
         x = Random(xSize);
         y = Random(ySize);
-        if (Maze(x, y) != -1 && (x != mlustate.AgentPos.X || y != mlustate.AgentPos.Y)) {
+        if (Maze(x, y) != -1 /*&& (x != mlustate.AgentPos.X || y != mlustate.AgentPos.Y)*/) {
             mlustate.AgentPos = COORD(x, y);
             break;
         }
     }
-    if (history.Back().Action < 4) {
-        int realObs = history.Back().Observation;
-        int newObs = GetObservation(mlustate);
-        if (newObs != realObs) {
-            return false;
-        }
+    bool isLoaded = mlustate.IsLoaded;
+    mlustate.IsLoaded = !isLoaded;
+
+    int realObs = history.Back().Observation;
+    int newObs = GetObservation(mlustate);
+    if (newObs != realObs) {
+        return false;
     }
     return true;
 }
@@ -221,6 +201,9 @@ int MLU::GetObservation(const MLU_STATE& mlustate) const
     }
     if (x - 1 >= 0 && Maze(x-1, y) != -1) {
         SetFlag(obs, 3);
+    }
+    if (mlustate.IsLoaded) {
+        SetFlag(obs, 4);
     }
     return obs;
 }
