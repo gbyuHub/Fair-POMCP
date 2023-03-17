@@ -4,17 +4,17 @@
 using namespace std;
 using namespace UTILS;
 
-MWA::MWA(int numStates, int numActions, int numObs, int numObjectives) 
-    : NumStates(numStates)
+MWA::MWA(int numObjectives) 
 {
     // n products, n visitor states, n buy states, plus 1 leave state, 2*n+1 states in total. 
+    NumObjectives = numObjectives;
+    NumStates = 2 * numObjectives + 1;
+    // n + 1 actions in total, action i (0 - n-1): show ad for product i, action n: show general ad
+    NumActions = numObjectives + 1;
+    NumObservations = NumStates;
+
     NumLeaveStates = 1;
     NumVisitStates = NumBuyStates = (NumStates - NumLeaveStates) / 2;
-
-    // n + 1 actions in total, action i (0 - n-1): show ad for product i, action n: show general ad
-    NumActions = numActions;
-    NumObservations = numObs;
-    NumObjectives = numObjectives;
 
     GenerateModel();
 }

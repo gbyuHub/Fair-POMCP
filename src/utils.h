@@ -119,7 +119,7 @@ namespace UTILS
 		for (int i = 1; i <= n; i++) {
 			pre_sum[i] = pre_sum[i-1] + prob[i-1];
 		}
-		double p = RandomDouble(0.0, 1.0);
+		double p = RandomDouble(0.0, 0.9999);
 		int idx = 0;
 		for (; idx < n; idx++) {
 			if (pre_sum[idx] <= p && p <= pre_sum[idx+1]) break;

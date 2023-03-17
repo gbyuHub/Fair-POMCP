@@ -1,27 +1,13 @@
-// #include "battleship.h"
 #include "mcts.h"
-// #include "network.h"
-// #include "pocman.h"
 #include "rocksample.h"
 #include "mlu.h"
 #include "randomdomain.h"
 #include "mwa.h"
-// #include "tag.h"
 #include "experiment.h"
 #include <boost/program_options.hpp>
 
 using namespace std;
 using namespace boost::program_options;
-
-// void UnitTests()
-// {
-//     cout << "Testing UTILS" << endl;
-//     UTILS::UnitTest();
-//     cout << "Testing COORD" << endl;
-//     COORD::UnitTest();
-//     cout << "Testing MCTS" << endl;
-//     MCTS::UnitTest();
-// }
 
 void disableBufferedIO(void)
 {
@@ -40,6 +26,7 @@ int main(int argc, char* argv[])
     SIMULATOR::KNOWLEDGE knowledge;
     string problem, outputfile, policy;
     int size, number, treeknowledge = 1, rolloutknowledge = 1, smarttreecount = 10;
+    int numProducts = 5;
     double smarttreevalue = 1.0;
 
     options_description desc("Allowed options");
@@ -53,6 +40,7 @@ int main(int argc, char* argv[])
         ("policy", value<string>(&policy), "policy file (explicit POMDPs only)")
         ("size", value<int>(&size), "size of problem (problem specific)")
         ("number", value<int>(&number), "number of elements in problem (problem specific)")
+        ("numproducts", value<int>(&numProducts)->default_value(5), "number of products in MWA problem")
         ("timeout", value<double>(&expParams.TimeOut), "timeout (seconds)")
         ("mindoubles", value<int>(&expParams.MinDoubles), "minimum power of two simulations")
         ("maxdoubles", value<int>(&expParams.MaxDoubles), "maximum power of two simulations")
@@ -93,41 +81,8 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-    // if (vm.count("test"))
-    // {
-    //     cout << "Running unit tests" << endl;
-    //     UnitTests();
-    //     return 0;
-    // }
-
     SIMULATOR* real = 0;
     SIMULATOR* simulator = 0;
-
-    // if (problem == "battleship")
-    // {
-    //     real = new BATTLESHIP(size, size, number);
-    //     simulator = new BATTLESHIP(size, size, number);
-    // }
-    // else if (problem == "pocman")
-    // {
-    //     real = new FULL_POCMAN;
-    //     simulator = new FULL_POCMAN;
-    // }
-    // else if (problem == "network")
-    // {
-    //     real = new NETWORK(size, number);
-    //     simulator = new NETWORK(size, number);
-    // }
-    // else if (problem == "rocksample")
-    // {
-    //     real = new ROCKSAMPLE(size, number);
-    //     simulator = new ROCKSAMPLE(size, number);
-    // }
-    // else if (problem == "tag")
-    // {
-    //     real = new TAG(number);
-    //     simulator = new TAG(number);
-    // }
     if (problem == "rocksample")
     {
         real = new ROCKSAMPLE(size, number, 2);
@@ -142,10 +97,10 @@ int main(int argc, char* argv[])
         searchParams.NumObjectives = 5;
     }
     else if (problem == "mwa") {
-        real = new MWA();
-        simulator = new MWA();
-        expParams.NumObjectives = 5;
-        searchParams.NumObjectives = 5;
+        real = new MWA(numProducts);
+        simulator = new MWA(numProducts);
+        expParams.NumObjectives = numProducts;
+        searchParams.NumObjectives = numProducts;
     }
     else if (problem == "random") {
         real = new RANDOMENV();

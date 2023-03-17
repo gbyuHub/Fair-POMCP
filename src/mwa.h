@@ -15,7 +15,8 @@ public:
 class MWA: public SIMULATOR
 {
 public:
-	MWA(int numStates = 11, int numActions = 6, int numObs = 11, int numObjectives = 5);
+	// MWA(int numStates = 11, int numActions = 6, int numObs = 11, int numObjectives = 5);
+	MWA(int numObjectives = 5);
 
 	virtual std::string GetDomainName() const;
 	virtual STATE* Copy(const STATE& state) const;
