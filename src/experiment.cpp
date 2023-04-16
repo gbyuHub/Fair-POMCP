@@ -173,6 +173,7 @@ void EXPERIMENT::Run()
 	Results.Time.Add(timer.elapsed());
 	Results.Timestep.Add(t);
 	Results.GGFScore.Add(GGF(undiscountedReturn));
+	Results.TotalRew.Add(accumulate(undiscountedReturn.begin(), undiscountedReturn.end(), 0.0));
 	Results.UndiscountedRewCV.Add(CV(undiscountedReturn));
 	Results.DiscountedRewCV.Add(CV(discountedReturn));
 	Results.UndiscountedReturn.Add(undiscountedReturn);
@@ -182,6 +183,7 @@ void EXPERIMENT::Run()
     Results.NumCheckAction.Add(num_check_action);
 	cout << "num steps = " << t << endl;
 	cout << "GGF score = " << GGF(undiscountedReturn) << endl;
+	cout << "Total reward = " << accumulate(undiscountedReturn.begin(), undiscountedReturn.end(), 0.0) << endl;
 	cout << "CV = " << CV(undiscountedReturn) << endl;
 	cout << "Discounted return = " << discountedReturn
 		<< ", average = " << Results.DiscountedReturn.GetMean() << endl;
@@ -251,7 +253,9 @@ void EXPERIMENT::DiscountedReturn()
 			<< "Timesteps = " << Results.Timestep.GetMean()
 			<< " +- " << Results.Timestep.GetStdErr() << endl
 			<< "GGF score = " << Results.GGFScore.GetMean()
-			<< " +- " << Results.GGFScore.GetStdErr() << endl;
+			<< " +- " << Results.GGFScore.GetStdErr() << endl
+			<< "Total reward = " << Results.TotalRew.GetMean()
+			<< " +- " << Results.TotalRew.GetStdErr() << endl;
 		if (is_rocksample_problem) {
 			cout << "Collected type1 rocks = " << Results.CollectedType1Rocks.GetMean()
             	<< " +- " << Results.CollectedType1Rocks.GetStdErr() << endl

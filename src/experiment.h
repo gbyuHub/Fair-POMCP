@@ -21,6 +21,7 @@ struct RESULTS
 	STATISTIC DiscountedRewCV;
 	STATISTIC GGFScore;
 	STATISTIC Timestep;
+	STATISTIC TotalRew; // sum of reward vector 
 	VECTORSTATISTIC Reward;
 	VECTORSTATISTIC DiscountedReturn;
 	VECTORSTATISTIC UndiscountedReturn;
@@ -36,6 +37,7 @@ inline void RESULTS::Clear()
 	UndiscountedRewCV.Clear();
 	DiscountedRewCV.Clear();
 	GGFScore.Clear();
+	TotalRew.Clear();
 	Timestep.Clear();
 	Reward.Clear();
 	DiscountedReturn.Clear();
