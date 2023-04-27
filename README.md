@@ -1,18 +1,16 @@
 # Fair-POMCP
-This repo contains the implementation of fair POMCP, based on its original code.
+Adapt POMCP for fair planning in POMDPs. Notably, stochastic action choices are implemented.
 
 ## Requirements
-* git
-* automake, autoconf, etc.
-* C++ Boost
+* CMake tool chain.
 
 ## Installation
 - ```git clone``` this repository
-- run ```autoreconf -i```
-- run ```./configure``` (possibly with ```--enable-assert```)
-- run ```make```
+- run ```cd src & mkdir build```
+- run ```cd build & cmake ..``` 
+- In src, run ```cmake --build build/```
 
-You will find the executable ```pomcp``` in the ```src``` directory.
+You will find the executable ```pomcp``` in the ```build``` directory.
 
 ## Usage
 Simply run ```pomcp --help``` to see all possible parameters.
