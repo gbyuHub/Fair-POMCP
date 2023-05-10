@@ -33,6 +33,7 @@ public:
 		double RaveConstant;
 		bool DisableTree;
 		std::string Strategy;
+		std::vector<double> ImportanceWeight;
 		bool ConsiderPast; // consider past cumulated reward or not
 		int NumObjectives;
 	};

@@ -35,7 +35,8 @@ int main(int argc, char* argv[])
         ("test", "run unit tests")
         ("problem", value<string>(&problem), "problem to run")
         ("outputfile", value<string>(&outputfile)->default_value("output.txt"), "summary output file")
-		("strategy", value<string>(&searchParams.Strategy)->default_value("GGF"), "action selection strategy")
+		("strategy", value<string>(&searchParams.Strategy)->default_value("G3F"), "action selection strategy")
+        ("weight_p", value<vector<double>>(&searchParams.ImportanceWeight)->multitoken(), "Importance weight for users")
         ("considerpast", value<bool>(&searchParams.ConsiderPast), "Consider the past returns or not")
         ("policy", value<string>(&policy), "policy file (explicit POMDPs only)")
         ("size", value<int>(&size), "size of problem (problem specific)")
@@ -81,6 +82,12 @@ int main(int argc, char* argv[])
         return 1;
     }
 
+    if (vm.count("strategy") == 0 || vm.count("weight_p") == 0)
+    {
+        cout << "Strategy or importance weight not defined!" << endl;
+        return 1;
+    }
+
     SIMULATOR* real = 0;
     SIMULATOR* simulator = 0;
     if (problem == "rocksample")
@@ -116,6 +123,12 @@ int main(int argc, char* argv[])
 
 
     simulator->SetKnowledge(knowledge);
+    vector<double> weight_p = searchParams.ImportanceWeight;
+    double sum = accumulate(weight_p.begin(), weight_p.end(), 0.0);
+    for (double& w: weight_p) {
+        w /= sum;
+    }
+    searchParams.ImportanceWeight = weight_p;
     EXPERIMENT experiment(*real, *simulator, outputfile, expParams, searchParams);
     experiment.DiscountedReturn();
 

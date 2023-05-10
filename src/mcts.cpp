@@ -270,11 +270,13 @@ std::vector<double> MCTS::SimulateQ(STATE& state, QNODE& qnode, int action, std:
 	for (int i = 0; i < Params.NumObjectives; i++){
 		totalReward[i] = immediateReward[i] + Simulator.GetDiscount() * delayedReward[i];
 	}
-	// qnode.Value.AddCumulatedReward(cumulatedReward);
 	if (Params.ConsiderPast) {
+		std::vector<double> totalReward_old = totalReward;
 		for (int i = 0; i < Params.NumObjectives; i++) {
 			totalReward[i] = cumulative_past_rew_old[i] + Simulator.GetDiscount() * totalReward[i];
 		}
+		qnode.Value.Add(totalReward);
+		return totalReward_old;
 	}
 	qnode.Value.Add(totalReward);
 	return totalReward;
@@ -343,12 +345,14 @@ int MCTS::GreedyUCB(VNODE* vnode, bool ucb) const
         if (Params.Verbose >= 1) {
             cout << "Action = " << action << ", q = " << q << ", n = " << n << ", UCB term = " << FastUCB(N, n, logN) << endl;
         }
-
-		if (Params.Strategy == "GGF") {
+		if (Params.Strategy == "G3F") {
+			a = G3F(q, Params.ImportanceWeight);
+		}
+		else if (Params.Strategy == "GGF") {
 			a = GGF(q); // GGF criteria
             // cout << "GGF score = " << a << endl;
 		}
-		else {
+		else if (Params.Strategy == "WS") {
 			a = WS(q); // weighted sum
             // cout << "WS score = " << a << endl;
 		}

@@ -172,8 +172,9 @@ void EXPERIMENT::Run()
 
 	Results.Time.Add(timer.elapsed());
 	Results.Timestep.Add(t);
-	Results.GGFScore.Add(GGF(undiscountedReturn));
+	Results.G3FScore.Add(G3F(undiscountedReturn, SearchParams.ImportanceWeight));
 	Results.TotalRew.Add(accumulate(undiscountedReturn.begin(), undiscountedReturn.end(), 0.0));
+	// Results.UndiscountedRewCV.Add(CV(undiscountedReturn));
 	Results.UndiscountedRewCV.Add(CV(undiscountedReturn));
 	Results.DiscountedRewCV.Add(CV(discountedReturn));
 	Results.UndiscountedReturn.Add(undiscountedReturn);
@@ -218,7 +219,7 @@ void EXPERIMENT::MultiRun()
 void EXPERIMENT::DiscountedReturn()
 {
 	cout << "Main runs" << endl;
-	OutputFile << "Simulations\tRuns\tUndiscounted return\tUndiscounted error\tDiscounted return\tDiscounted error\tTime\tUndiscounted CV\tUndiscounted CV error\tDiscounted CV\tDiscounted CV error\tTimesteps\tTimesteps error\tGGF score\tGGF score error\n";
+	OutputFile << "Simulations\tRuns\tUndiscounted return\tUndiscounted error\tDiscounted return\tDiscounted error\tTime\tUndiscounted CV\tUndiscounted CV error\tDiscounted CV\tDiscounted CV error\tTimesteps\tTimesteps error\tG3F score\tG3F score error\n";
 
     SearchParams.MaxDepth = Simulator.GetHorizon(ExpParams.Accuracy, ExpParams.UndiscountedHorizon);
     ExpParams.SimSteps = Simulator.GetHorizon(ExpParams.Accuracy, ExpParams.UndiscountedHorizon);
@@ -252,8 +253,8 @@ void EXPERIMENT::DiscountedReturn()
 			<< " +- " << Results.DiscountedRewCV.GetStdErr() << endl
 			<< "Timesteps = " << Results.Timestep.GetMean()
 			<< " +- " << Results.Timestep.GetStdErr() << endl
-			<< "GGF score = " << Results.GGFScore.GetMean()
-			<< " +- " << Results.GGFScore.GetStdErr() << endl
+			<< "G3F score = " << Results.G3FScore.GetMean()
+			<< " +- " << Results.G3FScore.GetStdErr() << endl
 			<< "Total reward = " << Results.TotalRew.GetMean()
 			<< " +- " << Results.TotalRew.GetStdErr() << endl;
 		if (is_rocksample_problem) {
@@ -278,8 +279,8 @@ void EXPERIMENT::DiscountedReturn()
 			<< Results.DiscountedRewCV.GetStdErr() << "\t"
 			<< Results.Timestep.GetMean() << "\t"
 			<< Results.Timestep.GetStdErr() << "\t"
-			<< Results.GGFScore.GetMean() << "\t"
-			<< Results.GGFScore.GetStdErr() << endl;
+			<< Results.G3FScore.GetMean() << "\t"
+			<< Results.G3FScore.GetStdErr() << endl;
 	}
 }
 

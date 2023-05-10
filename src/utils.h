@@ -10,6 +10,8 @@
 #include <algorithm>
 #include <numeric>
 #include <iostream>
+#include <cfloat>
+#include <unordered_set>
 
 #define LargeInteger 1000000
 #define Infinity 1e+10
@@ -48,6 +50,132 @@ namespace UTILS
 		double score = 0.0;
 		for (int i = 0; i < n; i++){
 			score += w[i] * utility[i];
+		}
+		return score;
+	}
+
+	inline int findNearestNeighbourIndex(const double value, const std::vector< double > &x )
+	{
+		double dist = DBL_MAX;
+		int idx = -1;
+		for ( int i = 0; i < x.size(); ++i ) {
+			double newDist = value - x[i];
+			if ( newDist > 0 && newDist < dist ) {
+				dist = newDist;
+				idx = i;
+			}
+		}
+
+		return idx;
+	}
+
+	inline std::vector<double> interp1(const std::vector<double>& x, const std::vector<double>& y, const std::vector<double>& x_new)
+	{
+		std::vector< double > y_new;
+		y_new.reserve( x_new.size() );
+
+		std::vector< double > dx, dy, slope, intercept;
+		dx.reserve( x.size() );
+		dy.reserve( x.size() );
+		slope.reserve( x.size() );
+		intercept.reserve( x.size() );
+		for( int i = 0; i < x.size(); ++i ){
+			if( i < x.size()-1 )
+			{
+				dx.push_back( x[i+1] - x[i] );
+				dy.push_back( y[i+1] - y[i] );
+				slope.push_back( dy[i] / dx[i] );
+				intercept.push_back( y[i] - x[i] * slope[i] );
+			}
+			else
+			{
+				dx.push_back( dx[i-1] );
+				dy.push_back( dy[i-1] );
+				slope.push_back( slope[i-1] );
+				intercept.push_back( intercept[i-1] );
+			}
+		}
+
+		for ( int i = 0; i < x_new.size(); ++i ) 
+		{
+			int idx = findNearestNeighbourIndex( x_new[i], x );
+			y_new.push_back( slope[idx] * x_new[i] + intercept[idx] );
+		}
+		return y_new;
+
+	}
+
+	inline std::vector<int> nonzero(const std::vector<double>& x, const double val)
+	{
+		// find index such that x[index] == val
+		std::vector<int> idx;
+		for (int i = 0; i < x.size(); i++) {
+			if (x[i] == val)
+				idx.push_back(i);
+		}
+		return idx;
+	}
+
+	inline double partialSum(const std::vector<double>& x, const std::vector<int>& idx, int left, int right) 
+	{
+		// idx[left, right)
+		double sum = 0.0;
+		for (int i = left; i < right; i++) {
+			sum += x[idx[i]];
+		}
+		return sum;
+	}
+
+	inline double G3F(const std::vector<double>& x, const std::vector<double>& p) 
+	{
+		std::vector<double> sorted_x = x;
+		std::sort(sorted_x.begin(), sorted_x.end());
+		std::unordered_set<double> cache;
+		std::vector<int> sigma;
+		for (double val: sorted_x) {
+			if (cache.count(val)) 
+				continue;
+			std::vector<int> idx = nonzero(x, val);
+			cache.insert(val);
+			for (int id: idx) {
+				sigma.push_back(id);
+			}
+		}
+
+		int N = p.size();
+		std::vector<double> w(N, 0.0);
+		for (int i = 0; i < N; i++) {
+			w[i] = 1.0 / pow(2, i);
+		}
+
+		std::vector<double> w_suffix_sum(N+1, 0.0);
+		for (int i = N-1; i >= 0; i--) {
+			w_suffix_sum[i] = w[i] + w_suffix_sum[i+1];
+		}
+
+		std::vector<double> x_data, y_data;
+		x_data.push_back(0.0);
+		y_data.push_back(0.0);
+		for (int i = 0; i < N; i++) {
+			x_data.push_back((double)(i+1) / N);
+			y_data.push_back(w_suffix_sum[N-i-1]);
+		}
+
+		std::vector<double> omega(N, 0.0), x1_list(N, 0.0), x2_list(N, 0.0);
+		for (int i = 0; i < N; i++) {
+			x1_list[i] = std::min(partialSum(p, sigma, i, N), 1.0);
+			x2_list[i] = std::min(partialSum(p, sigma, i+1, N), 1.0);
+		}
+		std::vector<double> y1_list = interp1(x_data, y_data, x1_list);
+		std::vector<double> y2_list = interp1(x_data, y_data, x2_list);
+
+		for (int i = 0; i < N; i++) {
+			omega[i] = y1_list[i] - y2_list[i];
+		}
+
+		double score = 0.0;
+		for (int i = 0; i < N; i++) {
+			score += omega[i] * sorted_x[i];
 		}
 		return score;
 	}
